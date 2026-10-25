@@ -1,0 +1,965 @@
+<title>ExGrade</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="ExGrade: graded cross-study evidence for molecular effects of exercise, by gene, tissue, exercise paradigm and molecular layer.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Literata:opsz,wght@7..72,500;7..72,700&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: a lookup bench. The query bar is the opening move; the verdict and the gene's tissue × paradigm grid sit side by side
+   above a full-width evidence table. The evidence map is one wide grid with a detail panel below it. Logical properties keep
+   the layout correct in right-to-left scripts. */
+:root {
+  --bg: #f3f5f8; --surface: #ffffff; --raise: #f8fafc; --ink: #121820; --ink2: #46505c; --muted: #6f7984;
+  --line: #dde2e8; --line2: #c6cdd6; --accent: #104281; --accent-ink: #ffffff; --focus: #2a78d6; --hl: #fff6d6;
+  --c1: #104281; --c2: #256abf; --c3: #5598e7; --c4: #86b6ef; --c5: #eb6834; --c6: #c9c8c2;
+  --t1: #ffffff; --t2: #ffffff; --t3: #ffffff; --t4: #0d2a4f; --t5: #ffffff; --t6: #2b2b2b;
+  --s-est: #104281; --s-ten: #5c9ce8; --s-con: #eb6834; --s-noe: #bcbbb4; --s-few: #f1f0ec; --s-nra: #ffffff;
+  --st-est: #ffffff; --st-ten: #ffffff; --st-con: #ffffff; --st-noe: #2b2b2b; --st-few: #7d7c77; --st-nra: #7d7c77;
+  --ok: #17804a; --bad: #c4501f;
+  --ff-display: "Literata", "Iowan Old Style", Georgia, serif;
+  --ff-ui: "Public Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --ff-num: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --r: 6px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1116; --surface: #161a20; --raise: #1b2027; --ink: #e7ebf0; --ink2: #b3bac4; --muted: #8b939e;
+    --line: #2a3039; --line2: #3a424d; --accent: #8fbcf5; --accent-ink: #0b1a2e; --focus: #8fbcf5; --hl: #3a3420;
+    --c1: #a9cdf6; --c2: #6aa3ea; --c3: #3d7bcc; --c4: #2b5c9a; --c5: #f07c4c; --c6: #5d5c58;
+    --t1: #0b1a2e; --t2: #0b1a2e; --t3: #f2f6fc; --t4: #e6eefa; --t5: #1a0d05; --t6: #f0f0ee;
+    --s-est: #8fbcf5; --s-ten: #3a78c9; --s-con: #f07c4c; --s-noe: #6b6a66; --s-few: #20242a; --s-nra: #161a20;
+    --st-est: #0b1a2e; --st-ten: #f2f6fc; --st-con: #1a0d05; --st-noe: #f0f0ee; --st-few: #8b939e; --st-nra: #8b939e;
+    --ok: #5cc28d; --bad: #f08a5d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1116; --surface: #161a20; --raise: #1b2027; --ink: #e7ebf0; --ink2: #b3bac4; --muted: #8b939e;
+  --line: #2a3039; --line2: #3a424d; --accent: #8fbcf5; --accent-ink: #0b1a2e; --focus: #8fbcf5; --hl: #3a3420;
+  --c1: #a9cdf6; --c2: #6aa3ea; --c3: #3d7bcc; --c4: #2b5c9a; --c5: #f07c4c; --c6: #5d5c58;
+  --t1: #0b1a2e; --t2: #0b1a2e; --t3: #f2f6fc; --t4: #e6eefa; --t5: #1a0d05; --t6: #f0f0ee;
+  --s-est: #8fbcf5; --s-ten: #3a78c9; --s-con: #f07c4c; --s-noe: #6b6a66; --s-few: #20242a; --s-nra: #161a20;
+  --st-est: #0b1a2e; --st-ten: #f2f6fc; --st-con: #1a0d05; --st-noe: #f0f0ee; --st-few: #8b939e; --st-nra: #8b939e;
+  --ok: #5cc28d; --bad: #f08a5d; color-scheme: dark;
+}
+/* script-specific type: Latin glyphs stay in the brand faces, other scripts fall back to matching Noto faces */
+:root:lang(zh-Hans) { --ff-ui: "Public Sans", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif; --ff-display: "Literata", "Noto Sans SC", "PingFang SC", serif; }
+:root:lang(zh-Hant) { --ff-ui: "Public Sans", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; --ff-display: "Literata", "Noto Sans TC", "PingFang TC", serif; }
+:root:lang(ja) { --ff-ui: "Public Sans", "Noto Sans JP", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif; --ff-display: "Literata", "Noto Sans JP", "Hiragino Sans", serif; }
+:root:lang(ko) { --ff-ui: "Public Sans", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; --ff-display: "Literata", "Noto Sans KR", "Apple SD Gothic Neo", serif; }
+:root:lang(ar) { --ff-ui: "Public Sans", "Noto Sans Arabic", "Segoe UI", Tahoma, sans-serif; --ff-display: "Literata", "Noto Sans Arabic", "Segoe UI", serif; }
+:root:lang(ru) { --ff-ui: "Public Sans", "Noto Sans", "Segoe UI", Roboto, sans-serif; }
+:root:lang(ar) body { line-height: 1.7; }
+:root:lang(ar) .eyebrow, :root:lang(ar) th { letter-spacing: 0; text-transform: none; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--ff-ui); font-size: 15px; line-height: 1.5; }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.num, bdi.n { font-family: var(--ff-num); font-variant-numeric: tabular-nums; }
+bdi.n { font-size: 0.93em; }
+
+/* masthead */
+.mast { background: var(--surface); border-bottom: 1px solid var(--line); }
+.mast .wrap { padding-block: 22px 0; display: grid; gap: 14px; }
+.brand { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.brand svg { flex: none; }
+.brand h1 { font-family: "Literata", Georgia, serif; font-weight: 700; font-size: 34px; line-height: 1; margin: 0; letter-spacing: -0.01em; }
+.brand p { margin: 0; color: var(--ink2); font-size: 15px; max-width: 52ch; text-wrap: balance; flex: 1 1 300px; }
+.langsel { margin-inline-start: auto; display: inline-flex; align-items: center; gap: 6px; color: var(--ink2); }
+.langsel select { font-size: 13.5px; padding-block: 6px; }
+.facts { display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--muted); font-size: 13px; }
+.facts b { color: var(--ink); font-weight: 600; font-family: var(--ff-num); font-variant-numeric: tabular-nums; }
+nav.tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+nav.tabs button { font: inherit; font-size: 14px; font-weight: 600; color: var(--ink2); background: none; border: 0; border-bottom: 3px solid transparent;
+  padding: 10px 12px 9px; cursor: pointer; white-space: nowrap; }
+nav.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+nav.tabs button:hover { color: var(--ink); }
+
+main .wrap { padding-block: 22px 40px; display: grid; gap: 18px; }
+main .wrap > section, #v-lookup > *, #v-map > *, #result > *, .res-grid > *, .search > * { min-width: 0; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); }
+.eyebrow { font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0; }
+
+/* state-of-evidence ribbon */
+.ribbon { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding: 12px 16px; }
+.ribbon .lead { font-size: 13.5px; color: var(--ink2); margin-inline-end: 4px; }
+.ribbon button { font: inherit; font-size: 13px; background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink); white-space: nowrap; }
+.sw { width: 12px; height: 12px; border-radius: 3px; flex: none; border: 1px solid transparent; }
+.sw.est { background: var(--s-est); } .sw.ten { background: var(--s-ten); } .sw.con { background: var(--s-con); }
+.sw.noe { background: var(--s-noe); } .sw.few { background: var(--s-few); border-color: var(--line2); }
+.sw.nra { background: radial-gradient(circle, var(--muted) 0.8px, transparent 1.1px) 0 0 / 4px 4px, var(--s-nra); border-color: var(--line2); }
+
+/* search */
+.search { padding: 18px; display: grid; gap: 12px; }
+.qrow { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; align-items: end; }
+.field { display: grid; gap: 4px; min-width: 0; }
+.field label { font-size: 12.5px; font-weight: 600; color: var(--ink2); }
+.field select { width: 100%; min-width: 0; }
+.qbox { position: relative; }
+#q { width: 100%; font: inherit; font-size: 18px; padding: 11px 14px; border: 1.5px solid var(--line2); border-radius: var(--r); background: var(--raise); color: var(--ink); }
+#q:focus { border-color: var(--focus); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 22%, transparent); }
+select { font: inherit; font-size: 14px; padding-block: 10px; padding-inline: 10px 30px; border: 1.5px solid var(--line2); border-radius: var(--r); background: var(--raise); color: var(--ink); max-width: 100%; }
+.sugg { position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 20; background: var(--surface); border: 1px solid var(--line2); border-radius: var(--r);
+  box-shadow: 0 10px 28px rgba(10, 20, 40, 0.16); max-height: 360px; overflow-y: auto; padding: 4px; margin: 0; list-style: none; }
+.sugg li { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 4px; cursor: pointer; }
+.sugg li[aria-selected="true"], .sugg li:hover { background: var(--bg); }
+.sugg .nm { font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sugg .meta { margin-inline-start: auto; display: flex; gap: 6px; align-items: center; color: var(--muted); font-size: 12px; white-space: nowrap; }
+.tag { font-size: 11px; font-weight: 600; padding: 1px 6px; border-radius: 3px; background: var(--bg); color: var(--ink2); border: 1px solid var(--line); }
+.opts { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.opts label { font-size: 13.5px; color: var(--ink2); display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.chips > span { font-size: 12.5px; color: var(--muted); margin-inline-end: 2px; }
+.chip { font: inherit; font-size: 13px; font-weight: 500; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line2); background: var(--surface); color: var(--ink); cursor: pointer; }
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+.msg { padding: 14px 16px; border-inline-start: 3px solid var(--c5); background: var(--raise); border-radius: var(--r); color: var(--ink); }
+.msg button { font: inherit; background: none; border: 0; color: var(--accent); text-decoration: underline; cursor: pointer; padding: 0 3px; }
+
+/* result */
+.res-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+.res-head h2 { font-family: var(--ff-display); font-weight: 700; font-size: 30px; line-height: 1.1; margin: 0; overflow-wrap: anywhere; }
+.res-head .desc { color: var(--ink2); font-size: 15px; }
+.res-head .links { font-size: 13px; display: flex; gap: 12px; }
+.res-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.verdict { padding: 18px 20px; display: grid; gap: 10px; }
+.verdict .big { font-family: var(--ff-display); font-size: 21px; line-height: 1.35; margin: 0; text-wrap: pretty; }
+.verdict .vnote { margin: 0; color: var(--muted); font-size: 12.5px; max-width: 72ch; }
+.vdl { margin: 4px 0 0; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 14px; }
+.vdl dt { font-weight: 700; font-size: 13.5px; color: var(--ink); }
+.vdl dd { margin: 0; color: var(--ink2); font-size: 14px; }
+.gridbox { padding: 16px 18px; display: grid; gap: 14px; min-width: 0; }
+.ggrid { display: grid; gap: 3px; align-items: center; overflow-x: auto; }
+.ggrid .rl { font-size: 12.5px; color: var(--ink2); white-space: nowrap; padding-inline-end: 8px; overflow: hidden; text-overflow: ellipsis; }
+.ggrid .cl { font-size: 11px; color: var(--muted); text-align: center; line-height: 1.15; padding-bottom: 2px; overflow-wrap: anywhere; }
+.cell { height: 30px; min-width: 40px; border-radius: 4px; display: flex; align-items: center; justify-content: center; position: relative;
+  font-family: var(--ff-num); font-size: 12px; font-weight: 600; border: 0; padding: 0; cursor: default; }
+button.cell { cursor: pointer; }
+.cell.empty { background: transparent; color: var(--line2); font-weight: 400; }
+.k1 { background: var(--c1); color: var(--t1); } .k2 { background: var(--c2); color: var(--t2); } .k3 { background: var(--c3); color: var(--t3); }
+.k4 { background: var(--c4); color: var(--t4); } .k5 { background: var(--c5); color: var(--t5); } .k6 { background: var(--c6); color: var(--t6); }
+.cell .mk, .mc .mk { position: absolute; top: 1px; inset-inline-end: 3px; font-size: 10px; line-height: 1; font-family: var(--ff-ui); }
+.cell.sel { box-shadow: 0 0 0 2px var(--ink); }
+.glegend { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 12px; color: var(--ink2); }
+.glegend .cell { height: 18px; min-width: 26px; font-size: 10.5px; display: inline-flex; }
+.glegend span.it { display: inline-flex; align-items: center; gap: 5px; }
+.lname { font-size: 12.5px; font-weight: 700; color: var(--ink); margin: 0 0 4px; }
+
+/* table */
+.tbl-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding: 14px 16px 0; }
+.tbl-head h3 { margin: 0; font-size: 16px; font-weight: 700; }
+.tbl-head .sp { flex: 1; }
+.btn { font: inherit; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: var(--r); border: 1px solid var(--line2); background: var(--surface); color: var(--ink); cursor: pointer; }
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.tscroll { overflow-x: auto; padding: 8px 0 4px; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+caption { text-align: start; padding: 0 16px 6px; }
+th, td { text-align: start; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+th { font-size: 11.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); white-space: nowrap; background: var(--surface); }
+td.n, th.n { text-align: end; white-space: nowrap; }
+td:first-child { min-width: 150px; }
+tr.l1 td:first-child { padding-inline-start: 26px; color: var(--ink2); }
+tr.hl td { background: var(--hl); }
+td .sub { display: block; color: var(--muted); font-size: 12px; }
+.badge { display: inline-block; min-width: 34px; text-align: center; font-family: var(--ff-num); font-size: 12px; font-weight: 600; padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
+.badge.k5, .badge.k6 { font-family: var(--ff-ui); font-size: 11.5px; }
+.stp { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; white-space: nowrap; color: var(--ink2); }
+.rep { white-space: nowrap; font-size: 12.5px; }
+.rep.y { color: var(--ok); font-weight: 600; } .rep.x { color: var(--bad); font-weight: 600; } .rep.na { color: var(--muted); }
+svg.fb { display: block; }
+.note { font-size: 12.5px; color: var(--muted); padding: 6px 16px 14px; margin: 0; max-width: 110ch; }
+.ci { color: var(--muted); }
+.dir { white-space: nowrap; font-size: 12.5px; }
+.d-up, .d-down { font-weight: 700; color: var(--ink); }
+.d-pup, .d-pdown { color: var(--ink2); }
+.d-same, .d-nd { color: var(--muted); }
+.d-conf { color: var(--bad); font-weight: 600; }
+.vlink { font: inherit; font-size: 12.5px; background: none; border: 0; padding: 0; color: var(--accent); text-decoration: underline; cursor: pointer; justify-self: start; }
+.vdl dt .ar { display: inline-block; min-width: 1.3em; font-family: var(--ff-num); }
+
+/* map */
+.mapbox { padding: 16px; display: grid; gap: 12px; }
+.mscroll { overflow-x: auto; padding-bottom: 6px; }
+.mgrid { display: grid; gap: 2px; align-items: stretch; width: max-content; }
+.mgrid .blk { font-size: 11.5px; font-weight: 700; color: var(--ink); padding: 0 2px 3px; border-bottom: 2px solid var(--ink2); line-height: 1.15; display: flex; align-items: flex-end; }
+.mgrid .cl { font-size: 10.5px; color: var(--muted); text-align: center; line-height: 1.15; padding: 3px 0; }
+.mgrid .rl { font-size: 12.5px; color: var(--ink2); white-space: nowrap; padding-inline-end: 10px; display: flex; align-items: center; }
+.mc { height: 28px; width: 46px; border-radius: 3px; display: flex; align-items: center; justify-content: center; position: relative; font-family: var(--ff-num);
+  font-size: 12px; border: 0; padding: 0; }
+button.mc { cursor: pointer; }
+.mc.blank { background: transparent; }
+.m-est { background: var(--s-est); color: var(--st-est); font-weight: 600; } .m-ten { background: var(--s-ten); color: var(--st-ten); font-weight: 600; }
+.m-con { background: var(--s-con); color: var(--st-con); font-weight: 600; } .m-noe { background: var(--s-noe); color: var(--st-noe); }
+.m-few { background: var(--s-few); color: var(--st-few); box-shadow: inset 0 0 0 1px var(--line2); }
+.m-nra { background: radial-gradient(circle, var(--line2) 1px, transparent 1.4px) 0 0 / 6px 6px, var(--s-nra); color: var(--st-nra); box-shadow: inset 0 0 0 1px var(--line2); }
+.mc.sel { box-shadow: 0 0 0 2px var(--ink); z-index: 1; }
+.mlegend { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 6px 18px; font-size: 13px; color: var(--ink2); }
+.detail { padding: 18px 20px; display: grid; gap: 14px; }
+.detail h3 { margin: 0; font-family: var(--ff-display); font-size: 22px; }
+.unit { display: grid; gap: 10px; padding-top: 12px; border-top: 1px solid var(--line); }
+.unit h4 { margin: 0; font-size: 15px; }
+.kv { display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: 13.5px; color: var(--ink2); }
+.kv b { color: var(--ink); font-family: var(--ff-num); font-variant-numeric: tabular-nums; font-weight: 500; }
+.studies { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12.5px; }
+.studies a { font-family: var(--ff-num); }
+details summary { cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--ink2); }
+
+/* text views */
+.prose { padding: 22px 24px; display: grid; gap: 14px; }
+.prose h2 { font-family: var(--ff-display); font-size: 24px; margin: 0; text-wrap: balance; }
+.prose h3 { font-size: 16px; margin: 8px 0 0; }
+.prose p, .prose li { max-width: 72ch; color: var(--ink2); margin: 0; }
+.prose ul { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; }
+.prose dl { margin: 0; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 16px; }
+.prose dt { font-weight: 600; } .prose dd { margin: 0; color: var(--ink2); max-width: 72ch; }
+.cite { font-size: 14px; padding: 12px 14px; background: var(--raise); border: 1px solid var(--line); border-radius: var(--r); color: var(--ink); direction: ltr; text-align: left; }
+.ck td { vertical-align: top; } .ck td:first-child { font-weight: 600; white-space: nowrap; }
+.ck td:last-child { color: var(--ink); font-weight: 500; }
+
+footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 12.5px; }
+footer .wrap { padding-block: 16px 28px; display: flex; flex-wrap: wrap; gap: 6px 20px; }
+
+#tip { position: fixed; z-index: 50; max-width: 320px; background: var(--ink); color: var(--bg); font-size: 12.5px; line-height: 1.45; padding: 8px 10px; border-radius: 5px;
+  pointer-events: none; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25); }
+#tip b { font-weight: 700; }
+.loading { color: var(--muted); padding: 18px; }
+
+@media (max-width: 860px) {
+  .res-grid { grid-template-columns: minmax(0, 1fr); }
+  .qrow { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .qrow .field:first-child { grid-column: 1 / -1; }
+  .brand h1 { font-size: 28px; }
+  .vdl, .prose dl { grid-template-columns: minmax(0, 1fr); gap: 2px 0; }
+  .vdl dd, .prose dd { margin-bottom: 8px; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
+</style>
+
+<header class="mast">
+  <div class="wrap">
+    <div class="brand">
+      <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true">
+        <rect x="3" y="24" width="7" height="13" rx="1.5" fill="var(--c4)"/>
+        <rect x="12" y="17" width="7" height="20" rx="1.5" fill="var(--c3)"/>
+        <rect x="21" y="10" width="7" height="27" rx="1.5" fill="var(--c2)"/>
+        <rect x="30" y="3" width="7" height="34" rx="1.5" fill="var(--c1)"/>
+      </svg>
+      <h1>ExGrade</h1>
+      <p data-i18n="tagline">Graded cross-study evidence for the molecular effects of exercise, for every gene, tissue, exercise paradigm and molecular layer in public omics data.</p>
+      <label class="langsel" for="lang">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.8 3.9 5.8 3.9 9s-1.3 6.2-3.9 9M12 3c-2.6 2.8-3.9 5.8-3.9 9s1.3 6.2 3.9 9"/>
+        </svg>
+        <select id="lang" aria-label="Language"><option value="en">English</option></select>
+      </label>
+    </div>
+    <div class="facts" id="facts"></div>
+    <nav class="tabs" role="tablist" aria-label="Views">
+      <button role="tab" id="t-lookup" aria-selected="true" aria-controls="v-lookup" data-v="lookup" data-i18n="tab_lookup">Look up a gene</button>
+      <button role="tab" id="t-map" aria-selected="false" aria-controls="v-map" data-v="map" data-i18n="tab_map">Evidence map</button>
+      <button role="tab" id="t-checklist" aria-selected="false" aria-controls="v-checklist" data-v="checklist" data-i18n="tab_checklist">Reporting checklist</button>
+      <button role="tab" id="t-about" aria-selected="false" aria-controls="v-about" data-v="about" data-i18n="tab_about">How grades work</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <section id="v-lookup" role="tabpanel" aria-labelledby="t-lookup" style="display:grid;gap:18px">
+      <div class="panel ribbon" id="ribbon"><span class="lead">…</span></div>
+      <div class="panel search">
+        <form class="qrow" id="qform" autocomplete="off">
+          <div class="field">
+            <label for="q" data-i18n="lbl_q">Gene, protein, miRNA or metabolite</label>
+            <div class="qbox">
+              <input id="q" type="text" dir="auto" spellcheck="false" data-i18n-ph="ph_q" placeholder="Try PPARGC1A, PGC1A, ENSG00000109819, miR-21-5p or lactate"
+                role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="sugg">
+              <ul class="sugg" id="sugg" role="listbox" hidden></ul>
+            </div>
+          </div>
+          <div class="field">
+            <label for="tissue" data-i18n="lbl_tissue">Tissue</label>
+            <select id="tissue"><option value="">All tissues</option></select>
+          </div>
+          <div class="field">
+            <label for="layer" data-i18n="lbl_layer">Molecular layer</label>
+            <select id="layer"><option value="">All layers</option></select>
+          </div>
+        </form>
+        <div class="opts">
+          <label for="bymode"><input type="checkbox" id="bymode"> <span data-i18n="lbl_bymode">Show each exercise mode separately</span></label>
+        </div>
+        <div class="chips" id="chips"><span data-i18n="try">Try:</span></div>
+      </div>
+      <div id="result" style="display:grid;gap:18px"><div class="panel loading">Loading the ExGrade atlas…</div></div>
+    </section>
+
+    <section id="v-map" role="tabpanel" aria-labelledby="t-map" hidden style="gap:18px">
+      <div class="panel mapbox">
+        <div>
+          <p class="eyebrow" data-i18n="map_eyebrow">Evidence map</p>
+          <h2 style="font-family:var(--ff-display);font-size:24px;margin:2px 0 6px" data-i18n="map_title">Where the molecular evidence for exercise stands</h2>
+          <p style="margin:0;color:var(--ink2);max-width:80ch" data-i18n="map_intro"></p>
+        </div>
+        <div class="mscroll"><div class="mgrid" id="mgrid"></div></div>
+        <div class="mlegend" id="mlegend"></div>
+      </div>
+      <div class="panel detail" id="mdetail"><p style="margin:0;color:var(--ink2)" data-i18n="map_select">Select a cell in the map to see its details.</p></div>
+    </section>
+
+    <section id="v-checklist" role="tabpanel" aria-labelledby="t-checklist" hidden>
+      <div class="panel prose">
+        <p class="eyebrow" id="ck-eyebrow"></p>
+        <h2 id="ck-title"></h2>
+        <p id="ck-intro"></p>
+        <div class="tscroll"><table class="ck"><thead><tr id="ck-th"></tr></thead><tbody id="ck-body"></tbody></table></div>
+      </div>
+    </section>
+
+    <section id="v-about" role="tabpanel" aria-labelledby="t-about" hidden>
+      <div class="panel prose" id="about"></div>
+    </section>
+  </div>
+</main>
+
+<footer><div class="wrap">
+  <span data-i18n="ft_version">ExGrade v1.0 · October 2026</span>
+  <span data-i18n="ft_sources">Source data: GEO, PRIDE, Metabolomics Workbench; held-out atlases: MoTrPAC (rat), Maier et al. (mouse)</span>
+  <span data-i18n="ft_tables">Effect sizes and grades for every feature are also provided as Supplementary Tables with the paper.</span>
+</div></footer>
+<div id="tip" role="tooltip" hidden></div>
+
+<script>
+(() => {
+  "use strict";
+  const LS = ["transcriptome", "methylation", "methylation_seq", "miRNA", "proteome", "metabolome"];
+  const STK = { "established": "est", "tentative": "ten", "contested": "con", "no consistent effect": "noe", "too few studies": "few", "not re-analysed": "nra" };
+  const STATUS = Object.keys(STK);
+  const BLOCKS = [["transcriptome", ["A0", "A1", "A2", "C", "X"]], ["methylation", ["A", "C"]], ["miRNA", ["A", "C"]], ["proteome", ["A", "C"]],
+    ["metabolome", ["A", "C"]], ["singlecell", ["A", "C"]], ["methylation_seq", ["A", "C"]], ["chromatin", ["A", "C"]]];
+  const EXAMPLES = ["PPARGC1A", "NR4A3", "COL1A1", "PDK4", "PER3", "MSTN", "VEGFA", "FKBP5"];
+  const TQ = [12.706, 4.303, 3.182, 2.776, 2.571, 2.447, 2.365, 2.306, 2.262, 2.228, 2.201, 2.179, 2.16, 2.145, 2.131, 2.12, 2.11, 2.101, 2.093, 2.086,
+    2.08, 2.074, 2.069, 2.064, 2.06, 2.056, 2.052, 2.048, 2.045, 2.042];
+  const bOrder = { A0: 0, A1: 1, A2: 2, C: 3, X: 4 };
+  const mOrder = { ALL: 0, END: 1, RES: 2, HIIT: 3, CON: 4, VWR: 5, OTH: 6 };
+
+  const S = { units: [], map: [], top: {}, meta: {}, idx: [], byKey: new Map(), byUp: new Map(), up: [], aliases: null, shards: new Map(),
+    cur: null, tissue: "", layer: "", bymode: false, sel: -1, sugg: [], mapSel: null, I18N: null, T: null, EN: null, L: null, intl: "en",
+    plural: null, nfc: new Map(), fonts: new Set() };
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, attrs = {}, ...kids) => {
+    const e = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      if (v == null || v === false) continue;
+      if (k === "class") e.className = v; else if (k === "text") e.textContent = v;
+      else if (k.startsWith("on")) e.addEventListener(k.slice(2), v); else e.setAttribute(k, v === true ? "" : v);
+    }
+    for (const c of kids.flat()) if (c != null && c !== false && c !== "") e.append(c.nodeType ? c : document.createTextNode(String(c)));
+    return e;
+  };
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  // ---------- i18n ----------
+  const raw = (k) => (S.T && S.T[k] != null ? S.T[k] : S.EN && S.EN[k] != null ? S.EN[k] : k);
+  const fill = (s, vars) => (vars ? String(s).replace(/\{(\w+)\}/g, (m, k) => (vars[k] != null ? vars[k] : m)) : String(s));
+  const t = (k, vars) => fill(raw(k), vars);
+  const tp = (k, count, vars) => {
+    const cat = S.plural ? S.plural.select(count) : "other";
+    const T = S.T || {};
+    const key = T[`${k}_${cat}`] != null ? `${k}_${cat}` : T[`${k}_other`] != null ? `${k}_other` : k;
+    return t(key, vars);
+  };
+  const V = (dict, key) => {
+    const a = S.T && S.T[dict] && S.T[dict][key], b = S.EN && S.EN[dict] && S.EN[dict][key];
+    return a != null ? a : b != null ? b : key;
+  };
+  const VE = (dict, key) => (S.EN && S.EN[dict] && S.EN[dict][key] != null ? S.EN[dict][key] : key);
+  const tnodes = (tpl, map) => String(tpl).split(/(\{\w+\})/).filter((p) => p !== "").map((p) => {
+    const m = p.match(/^\{(\w+)\}$/);
+    return m && map[m[1]] != null ? map[m[1]] : p;
+  });
+
+  // ---------- numbers ----------
+  function nf(x, d = 2) {
+    const key = `${S.intl}|${d}`;
+    let f = S.nfc.get(key);
+    if (!f) { f = new Intl.NumberFormat(S.intl, { minimumFractionDigits: d, maximumFractionDigits: d }); S.nfc.set(key, f); }
+    return f.format(x).replace(/[؜‎‏]/g, "").replace(/-/g, "−");
+  }
+  const ni = (n) => nf(n, 0);
+  const pct = (n) => t("pct", { n: ni(n) });
+  const ci = (lo, hi, d = 2) => `[${nf(lo, d)}${raw("ci_sep")}${nf(hi, d)}]`;
+  const num = (s) => el("bdi", { class: "n", dir: "ltr", text: s });
+  const tq = (df) => {
+    if (df < 1) df = 1;
+    if (df <= 30) return TQ[df - 1];
+    const z = 1.959964, g1 = (z ** 3 + z) / 4, g2 = (5 * z ** 5 + 16 * z ** 3 + 3 * z) / 96;
+    return z + g1 / df + g2 / (df * df);
+  };
+  const pnorm2 = (z) => {
+    const t1 = 1 / (1 + 0.2316419 * Math.abs(z));
+    const d = 0.3989422804 * Math.exp(-z * z / 2);
+    const p = d * t1 * (0.31938153 + t1 * (-0.356563782 + t1 * (1.781477937 + t1 * (-1.821255978 + t1 * 1.330274429))));
+    return Math.min(1, 2 * p);
+  };
+  const sup = (s) => String(s).split("").map((c) => "⁰¹²³⁴⁵⁶⁷⁸⁹"[c] || c).join("");
+  const fp = (p) => {
+    if (p < 1e-16) return "< 10⁻¹⁶";
+    if (p < 1e-4) { let e = Math.floor(Math.log10(p)), m = Math.round(p / 10 ** e); if (m === 10) { m = 1; e += 1; } return `${m} × 10⁻${sup(-e)}`; }
+    return p < 0.001 ? nf(p, 4) : nf(p, 3);
+  };
+
+  // row: [unit, code, g100, se100, k, I2, npos, nsp, nsn, tau100]
+  const R = (r) => {
+    const u = S.units[r[0]], c = r[1] % 10, mo = Math.floor((r[1] % 40) / 10), ra = Math.floor(r[1] / 40);
+    const g = r[2] / 100, se = r[3] / 100, k = r[4], tau = r[9] / 100;
+    const half = tq(k - 2) * Math.sqrt(tau * tau + se * se);
+    return { r, u, c, mo, ra, g, se, k, i2: r[5], npos: r[6], nsp: r[7], nsn: r[8], lo: g - 1.96 * se, hi: g + 1.96 * se, plo: g - half, phi: g + half, p: pnorm2(g / se) };
+  };
+  const clsLabel = (c) => (c <= 4 ? t("cls_label", { r: V("cls_badge", String(c)) }) : V("cls_name", String(c)));
+  const unitBits = (x, withLayer) => {
+    const a = [V("tissue", x.u.t), V("bt", x.u.b)];
+    if (x.u.v === "L1") a.push(V("mode", x.u.m));
+    if (withLayer && x.u.l !== "transcriptome") a.push(V("layer", x.u.l));
+    return a.join(" · ");
+  };
+  const repWord = (code) => (code === 1 ? t("rep_y") : code === 3 ? t("rep_x") : t("rep_ns"));
+  const repShort = (code, c) => {
+    if (code === 0) return ["na", "–", t("rep_na_t")];
+    if (code === 2) return ["na", t("rep_ns_s"), t("rep_ns_t")];
+    if (c > 4) return code === 1 ? ["na", t("rep_same_s"), t("rep_same_t")] : ["na", t("rep_opp_s"), t("rep_opp_t")];
+    return code === 1 ? ["y", t("rep_y_s"), t("rep_y_t")] : ["x", t("rep_x_s"), t("rep_x_t")];
+  };
+
+  // direction call: up/down (class I-III), possibly up/down (class IV), conflicting (inconsistent),
+  // no change (no detectable effect, 95% CI within -0.2..0.2) or no detectable change (wider CI)
+  const DIRS = ["up", "down", "pup", "pdown", "conf", "same", "nd"];
+  const DG = { up: "↑", down: "↓", pup: "↑", pdown: "↓", same: "=", nd: "–", conf: "⇅" };
+  const dirOf = (x) => (x.c <= 3 ? (x.g > 0 ? "up" : "down") : x.c === 4 ? (x.g > 0 ? "pup" : "pdown") : x.c === 5 ? "conf" : (x.lo > -0.2 && x.hi < 0.2 ? "same" : "nd"));
+  const cellGlyph = (x) => (x.c <= 4 ? DG[dirOf(x)] + V("cls_badge", String(x.c)) : DG[dirOf(x)]);
+  const DE = { up: "up", down: "down", pup: "possibly up", pdown: "possibly down", same: "no change", nd: "no detectable change", conf: "conflicting" };
+
+  // ---------- data ----------
+  async function getJSON(path) {
+    const res = await fetch(path);
+    if (!res.ok) throw new Error(`${path}: ${res.status}`);
+    return res.json();
+  }
+  async function getShard(n) {
+    if (!S.shards.has(n)) S.shards.set(n, getJSON(`data/s/${String(n).padStart(3, "0")}.json`));
+    return S.shards.get(n);
+  }
+  async function getAliases() {
+    if (!S.aliases) S.aliases = getJSON("data/aliases.json");
+    return S.aliases;
+  }
+
+  // ---------- tooltip ----------
+  const tip = $("tip");
+  function showTip(target, html) {
+    tip.innerHTML = html; tip.hidden = false;
+    const b = target.getBoundingClientRect(), r = tip.getBoundingClientRect();
+    let x = b.left + b.width / 2 - r.width / 2, y = b.top - r.height - 8;
+    if (y < 8) y = b.bottom + 8;
+    x = Math.max(8, Math.min(x, window.innerWidth - r.width - 8));
+    tip.style.left = `${x}px`; tip.style.top = `${y}px`;
+  }
+  const hideTip = () => { tip.hidden = true; };
+  window.addEventListener("scroll", hideTip, { passive: true });
+  function attachTip(node, htmlFn) {
+    node.addEventListener("mouseenter", () => showTip(node, htmlFn()));
+    node.addEventListener("mouseleave", hideTip);
+    node.addEventListener("focus", () => showTip(node, htmlFn()));
+    node.addEventListener("blur", hideTip);
+  }
+  const bd = (s) => `<bdi dir="ltr">${esc(s)}</bdi>`;
+
+  // ---------- search ----------
+  const q = $("q"), sugg = $("sugg");
+  function rank(query) {
+    const Q = query.toUpperCase();
+    const out = [];
+    for (let i = 0; i < S.up.length; i++) {
+      const n = S.up[i];
+      let s = -1;
+      if (n === Q) s = 0; else if (n.startsWith(Q)) s = 1; else { const j = n.indexOf(Q); if (j > 0) s = /[-_.\s(,]/.test(n[j - 1]) ? 2 : 3; }
+      if (s >= 0) out.push([s, -S.idx[i][5], n.length, i]);
+    }
+    out.sort((a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2]);
+    return out.slice(0, 10).map((x) => S.idx[x[3]]);
+  }
+  function renderSugg() {
+    sugg.replaceChildren();
+    if (!S.sugg.length) { sugg.hidden = true; q.setAttribute("aria-expanded", "false"); return; }
+    S.sugg.forEach((e, i) => {
+      const layers = LS.filter((l, b) => e[3] & (1 << b)).map((l) => el("span", { class: "tag", text: V("ltag", l) }));
+      const info = e[5] ? tp("sg_graded", e[5], { n: ni(e[5]) }) : (e[4] === 4 ? t("sg_weak") : t("sg_none"));
+      sugg.append(el("li", { role: "option", id: `sg-${i}`, "aria-selected": i === S.sel ? "true" : "false",
+        onmousedown: (ev) => { ev.preventDefault(); choose(e); } }, el("bdi", { class: "nm", text: e[0] }), el("span", { class: "meta" }, ...layers, info)));
+    });
+    sugg.hidden = false; q.setAttribute("aria-expanded", "true");
+    if (S.sel >= 0) q.setAttribute("aria-activedescendant", `sg-${S.sel}`); else q.removeAttribute("aria-activedescendant");
+  }
+  q.addEventListener("input", () => { const v = q.value.trim(); S.sel = -1; S.sugg = v ? rank(v) : []; renderSugg(); });
+  q.addEventListener("keydown", (ev) => {
+    if (ev.key === "ArrowDown" && S.sugg.length) { S.sel = (S.sel + 1) % S.sugg.length; renderSugg(); ev.preventDefault(); }
+    else if (ev.key === "ArrowUp" && S.sugg.length) { S.sel = (S.sel - 1 + S.sugg.length) % S.sugg.length; renderSugg(); ev.preventDefault(); }
+    else if (ev.key === "Escape") { S.sugg = []; renderSugg(); }
+  });
+  q.addEventListener("blur", () => setTimeout(() => { S.sugg = []; renderSugg(); }, 120));
+  $("qform").addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    if (S.sel >= 0 && S.sugg[S.sel]) return choose(S.sugg[S.sel]);
+    resolve(q.value.trim());
+  });
+  function choose(e) { S.sugg = []; renderSugg(); q.value = e[0]; lookup(e[1]); }
+  async function resolve(text) {
+    if (!text) return;
+    const U = text.toUpperCase();
+    const hits = S.byUp.get(U);
+    if (hits && hits.length === 1) return choose(hits[0]);
+    if (/^\d+$/.test(text) && S.byKey.has(text)) return choose(S.byKey.get(text));
+    let keys = hits ? hits.map((h) => h[1]) : [];
+    if (!keys.length) {
+      try { const A = await getAliases(); const a = A[U.replace(/\.\d+$/, "")]; if (a) keys = Array.isArray(a) ? a : [a]; } catch (e) { /* aliases unavailable */ }
+    }
+    keys = keys.filter((k) => S.byKey.has(k));
+    if (keys.length === 1) { q.value = S.byKey.get(keys[0])[0]; return lookup(keys[0]); }
+    const box = $("result"); box.replaceChildren();
+    if (keys.length > 1) {
+      box.append(el("div", { class: "msg" }, t("msg_multi", { q: text }), " ",
+        ...keys.map((k) => el("button", { type: "button", onclick: () => choose(S.byKey.get(k)), text: S.byKey.get(k)[0] }))));
+    } else {
+      const close = rank(text.slice(0, Math.max(2, text.length - 1))).slice(0, 5);
+      box.append(el("div", { class: "msg" }, t("msg_none", { q: text }), " ", close.length ? t("msg_close") + " " : "",
+        ...close.map((e) => el("button", { type: "button", onclick: () => choose(e), text: e[0] }))));
+    }
+  }
+
+  // ---------- result ----------
+  async function lookup(key) {
+    const e = S.byKey.get(key);
+    if (!e) return;
+    const box = $("result");
+    box.replaceChildren(el("div", { class: "panel loading", text: t("loading", { name: e[0] }) }));
+    try {
+      const sh = await getShard(e[2]);
+      S.cur = { key, e, d: sh[key] };
+      renderResult();
+    } catch (err) {
+      box.replaceChildren(el("div", { class: "msg", text: t("loadfail") }));
+    }
+  }
+  const tOrder = (tt) => { const i = S.meta.tissue_order.indexOf(tt); return i < 0 ? 99 : i; };
+
+  function verdict(all) {
+    const L2 = all.filter((x) => x.u.v === "L2" && (!S.layer || x.u.l === S.layer));
+    const out = el("div", { class: "panel verdict" }, el("p", { class: "eyebrow", text: t("v_eyebrow") }));
+    const graded = L2.filter((x) => x.c <= 3), weak = L2.filter((x) => x.c === 4);
+    let big;
+    if (!L2.length) big = t("v_h_na");
+    else if (graded.length) big = tp("v_h_graded", L2.length, { n: ni(graded.length), m: ni(L2.length) });
+    else if (weak.length) big = tp("v_h_weak", L2.length, { n: ni(weak.length), m: ni(L2.length) });
+    else big = t("v_h_none");
+    out.append(el("p", { class: "big", text: big }));
+    if (L2.length) out.append(el("p", { class: "vnote", text: t("v_note") }));
+    const dl = el("dl", { class: "vdl" });
+    const row = (label, nodes, glyph) => dl.append(el("dt", {}, glyph ? el("span", { class: "ar", text: glyph }) : null, label), el("dd", {}, ...nodes));
+    // direction groups: which units go up, down, stay unchanged or disagree
+    const byDir = {};
+    for (const x of L2) (byDir[dirOf(x)] = byDir[dirOf(x)] || []).push(x);
+    const grouped = (xs, maxT) => {
+      const m = new Map();
+      for (const x of [...xs].sort((a, b) => tOrder(a.u.t) - tOrder(b.u.t) || bOrder[a.u.b] - bOrder[b.u.b])) {
+        if (!m.has(x.u.t)) m.set(x.u.t, []);
+        m.get(x.u.t).push(V("bs", x.u.b) + (x.u.l === "transcriptome" ? "" : ` (${V("layer", x.u.l)})`));
+      }
+      const parts = [...m.entries()].slice(0, maxT).map(([tt, bins]) => `${V("tissue", tt)}: ${bins.join(", ")}`);
+      let s = parts.join(" · ");
+      if (m.size > maxT) s += ` · ${t("v_more", { n: ni(m.size - maxT) })}`;
+      return s;
+    };
+    for (const d of DIRS) {
+      const xs = byDir[d];
+      if (!xs || !xs.length) continue;
+      const label = `${t("dir_" + d)} (${ni(xs.length)})`;
+      if (d === "conf") {
+        const parts = [];
+        xs.slice(0, 4).forEach((x, i) => { if (i) parts.push("; "); parts.push(`${unitBits(x, true)} `, num(`(I² = ${pct(x.i2)}, ↑${ni(x.nsp)} ↓${ni(x.nsn)})`)); });
+        if (xs.length > 4) parts.push(` · ${t("v_more", { n: ni(xs.length - 4) })}`);
+        row(label, parts, DG[d]);
+      } else row(label, [grouped(xs, d === "same" || d === "nd" ? 4 : 8)], DG[d]);
+    }
+    const best = [...graded, ...weak].sort((a, b) => a.c - b.c || Math.abs(b.g / b.se) - Math.abs(a.g / a.se))[0];
+    if (best) {
+      row(t("v_strongest"), [clsLabel(best.c), " · ", unitBits(best, true), " · ", num(`g = ${nf(best.g)} ${ci(best.lo, best.hi)}`), " · ",
+        num(`k = ${ni(best.k)}`), " · ", num(`↑${ni(best.nsp)} ↓${ni(best.nsn)}`)]);
+    }
+    const ext = L2.filter((x) => x.c <= 4 && (x.mo || x.ra));
+    if (ext.length) {
+      const parts = [];
+      ext.slice(0, 3).forEach((x, i) => {
+        if (i) parts.push(" | ");
+        const r = [];
+        if (x.mo) r.push(`${t("v_mouse")}: ${repWord(x.mo)}`);
+        if (x.ra) r.push(`${t("v_rat")}: ${repWord(x.ra)}`);
+        parts.push(`${unitBits(x, true)} — ${r.join("; ")}`);
+      });
+      row(t("v_ext"), parts);
+    } else if (L2.some((x) => x.c <= 4)) row(t("v_ext"), [t("v_ext_none")]);
+    if (S.tissue) {
+      const T = L2.filter((x) => x.u.t === S.tissue).sort((a, b) => bOrder[a.u.b] - bOrder[b.u.b]);
+      const parts = [];
+      T.forEach((x, i) => {
+        if (i) parts.push("; ");
+        parts.push(`${V("bt", x.u.b)}${x.u.l === "transcriptome" ? "" : " · " + V("layer", x.u.l)}: ${DG[dirOf(x)]} ${t("dir_" + dirOf(x))}, ${clsLabel(x.c)} `, num(`(g = ${nf(x.g)}, k = ${ni(x.k)})`));
+      });
+      row(t("v_tissue", { tissue: V("tissue", S.tissue) }), T.length ? parts : [t("v_tissue_none")]);
+    }
+    if (dl.childNodes.length) out.append(dl);
+    if (L2.length) out.append(el("button", { type: "button", class: "vlink", text: t("v_dir_help"),
+      onclick: () => { show("about"); const n = $("dir-defs"); if (n) n.scrollIntoView({ block: "start" }); } }));
+    return out;
+  }
+
+  function geneGrid(all) {
+    const box = el("div", { class: "panel gridbox" }, el("p", { class: "eyebrow", text: t("grid_eyebrow") }));
+    const L2 = all.filter((x) => x.u.v === "L2");
+    const layers = LS.filter((l) => (!S.layer || l === S.layer) && L2.some((x) => x.u.l === l));
+    if (!layers.length) { box.append(el("p", { style: "margin:0;color:var(--ink2)", text: t("grid_none") })); return box; }
+    for (const l of layers) {
+      const rows = L2.filter((x) => x.u.l === l);
+      const tissues = [...new Set(rows.map((x) => x.u.t))].sort((a, b) => tOrder(a) - tOrder(b));
+      const bins = ["A0", "A1", "A2", "C", "X"].filter((b) => rows.some((x) => x.u.b === b));
+      const wrapL = el("div", {});
+      if (layers.length > 1 || l !== "transcriptome") wrapL.append(el("p", { class: "lname", text: V("layer", l) }));
+      const g = el("div", { class: "ggrid", style: `grid-template-columns: minmax(90px, max-content) repeat(${bins.length}, minmax(40px, 64px))` });
+      g.append(el("div", {}));
+      bins.forEach((b) => g.append(el("div", { class: "cl", text: V("bs", b) })));
+      for (const tt of tissues) {
+        g.append(el("div", { class: "rl", text: V("tissue", tt), title: V("tissue", tt) }));
+        for (const b of bins) {
+          const x = rows.find((y) => y.u.t === tt && y.u.b === b);
+          if (!x) { g.append(el("div", { class: "cell empty", text: "·", "aria-hidden": "true" })); continue; }
+          const mk = x.c <= 4 ? ((x.mo === 1 || x.ra === 1) ? "✓" : (x.mo === 3 || x.ra === 3) ? "✗" : "") : "";
+          const glyph = cellGlyph(x);
+          const c = el("button", { type: "button", class: `cell k${x.c}`, "aria-label": `${V("tissue", tt)}, ${V("bt", b)}: ${t("dir_" + dirOf(x))}, ${V("cls_name", String(x.c))}, g ${nf(x.g)}, k ${ni(x.k)}` },
+            glyph, mk ? el("span", { class: "mk", text: mk }) : null);
+          if (S.tissue === tt) c.classList.add("sel");
+          attachTip(c, () => tipRow(x));
+          c.addEventListener("click", () => highlightRow(x.r));
+          g.append(c);
+        }
+      }
+      wrapL.append(g); box.append(wrapL);
+    }
+    const lg = el("div", { class: "glegend" });
+    for (const c of [1, 2, 3, 4, 5, 6]) {
+      const glyph = c <= 4 ? V("cls_badge", String(c)) : c === 5 ? "⇅" : "–";
+      lg.append(el("span", { class: "it" }, el("span", { class: `cell k${c}`, text: glyph }), V("cls_short", String(c))));
+    }
+    lg.append(el("span", { class: "it", style: "flex-basis:100%", text: ["up", "down", "same", "nd", "conf"].map((d) => `${DG[d]} ${t("dir_" + d)}`).join(" · ") }));
+    lg.append(el("span", { class: "it", text: t("grid_mark") }));
+    box.append(lg);
+    return box;
+  }
+  function tipRow(x) {
+    let h = `<b>${esc(unitBits(x, true))}</b><br>${esc(DG[dirOf(x)] + " " + t("dir_" + dirOf(x)))} · ${esc(V("cls_name", String(x.c)))}<br>${bd(`g = ${nf(x.g)} ${ci(x.lo, x.hi)} · P = ${fp(x.p)}`)}<br>` +
+      bd(`k = ${ni(x.k)} · I² = ${pct(x.i2)} · ↑${ni(x.nsp)} ↓${ni(x.nsn)}`);
+    if (x.mo || x.ra) h += `<br>${esc(t("th_mouse"))}: ${esc(repShort(x.mo, x.c)[1])} · ${esc(t("th_rat"))}: ${esc(repShort(x.ra, x.c)[1])}`;
+    return h;
+  }
+  function forest(x, M) {
+    const W = 120, H = 16, sx = (v) => Math.max(1, Math.min(W - 1, (W / 2) + (v / M) * (W / 2 - 4)));
+    const ns = "http://www.w3.org/2000/svg";
+    const s = document.createElementNS(ns, "svg");
+    for (const [k, v] of Object.entries({ class: "fb", width: W, height: H, viewBox: `0 0 ${W} ${H}`, "aria-hidden": "true", direction: "ltr" })) s.setAttribute(k, v);
+    const add = (tag, a) => { const n = document.createElementNS(ns, tag); for (const k in a) n.setAttribute(k, a[k]); s.append(n); return n; };
+    add("line", { x1: W / 2, x2: W / 2, y1: 1, y2: H - 1, stroke: "var(--line2)", "stroke-width": 1 });
+    add("line", { x1: sx(x.plo), x2: sx(x.phi), y1: H / 2, y2: H / 2, stroke: "var(--line2)", "stroke-width": 1, "stroke-dasharray": "2 2" });
+    add("line", { x1: sx(x.lo), x2: sx(x.hi), y1: H / 2, y2: H / 2, stroke: `var(--c${x.c})`, "stroke-width": 2.5, "stroke-linecap": "round" });
+    add("circle", { cx: sx(x.g), cy: H / 2, r: 3.6, fill: `var(--c${x.c})`, stroke: "var(--surface)", "stroke-width": 1.5 });
+    return s;
+  }
+  function sortRows(rows) {
+    return rows.sort((a, b) => tOrder(a.u.t) - tOrder(b.u.t) || bOrder[a.u.b] - bOrder[b.u.b] || LS.indexOf(a.u.l) - LS.indexOf(b.u.l) ||
+      (a.u.v === "L2" ? 0 : 1) - (b.u.v === "L2" ? 0 : 1) || mOrder[a.u.m] - mOrder[b.u.m]);
+  }
+  function visibleRows() {
+    let rows = S.cur.d.r.map(R);
+    if (S.layer) rows = rows.filter((x) => x.u.l === S.layer);
+    if (!S.bymode) rows = rows.filter((x) => x.u.v === "L2");
+    return rows;
+  }
+  function table(rows) {
+    const box = el("div", { class: "panel" });
+    const shown = sortRows(rows.filter((x) => !S.tissue || x.u.t === S.tissue));
+    box.append(el("div", { class: "tbl-head" }, el("h3", { text: t("tbl_title") }),
+      el("span", { style: "color:var(--muted);font-size:13px", text: tp("tbl_count", shown.length, { n: ni(shown.length) }) + (S.tissue ? ` · ${V("tissue", S.tissue)}` : "") }),
+      el("span", { class: "sp" }), el("button", { type: "button", class: "btn", id: "copytsv", onclick: () => copyTSV(shown), text: t("tbl_copy") })));
+    if (!shown.length) { box.append(el("p", { class: "note", text: t("tbl_none") })); return box; }
+    const M = Math.min(5, Math.max(1, ...shown.map((x) => Math.max(Math.abs(x.lo), Math.abs(x.hi)))));
+    const tb = el("tbody");
+    for (const x of shown) {
+      const [mc, mt, mtt] = repShort(x.mo, x.c), [rc, rt, rtt] = repShort(x.ra, x.c);
+      const st = x.u.st;
+      tb.append(el("tr", { class: x.u.v === "L1" ? "l1" : null, "data-r": x.r.join(",") },
+        el("td", {}, x.u.v === "L1" ? V("mode", x.u.m) : V("tissue", x.u.t),
+          el("span", { class: "sub", text: x.u.v === "L1" ? `${V("tissue", x.u.t)} · ${V("bt", x.u.b)}` : V("bt", x.u.b) })),
+        el("td", { text: V("layer", x.u.l) }),
+        el("td", {}, el("span", { class: `badge k${x.c}`, text: V("cls_badge", String(x.c)) })),
+        el("td", { class: `dir d-${dirOf(x)}`, title: t("dir_" + dirOf(x) + "_t"), text: `${DG[dirOf(x)]} ${t("dir_" + dirOf(x))}` }),
+        el("td", { class: "n" }, num(nf(x.g)), " ", el("bdi", { class: "n ci", dir: "ltr", text: ci(x.lo, x.hi) })),
+        el("td", {}, forest(x, M)),
+        el("td", { class: "n" }, num(ci(x.plo, x.phi, 1))),
+        el("td", { class: "n" }, num(ni(x.k))),
+        el("td", { class: "n" }, num(pct(x.i2))),
+        el("td", { class: "n" }, num(`↑${ni(x.nsp)} ↓${ni(x.nsn)}`)),
+        el("td", { class: `rep ${mc}`, title: mtt, text: mt }),
+        el("td", { class: `rep ${rc}`, title: rtt, text: rt }),
+        el("td", {}, st ? el("span", { class: "stp" }, el("span", { class: `sw ${STK[st]}` }), V("st", st)[0]) : el("span", { class: "stp", text: "–" }))));
+    }
+    const heads = [["th_unit"], ["th_layer"], ["th_class"], ["th_dir"], ["th_g", "n"], [null], ["th_pi", "n"], ["th_k", "n"], ["th_i2", "n"], ["th_sig", "n"], ["th_mouse"], ["th_rat"], ["th_status"]];
+    const tbl = el("table", {}, el("caption", { class: "eyebrow", text: t("tbl_caption") }),
+      el("thead", {}, el("tr", {}, ...heads.map(([k, c]) => el("th", { class: c || null, text: k ? t(k) : "" })))), tb);
+    box.append(el("div", { class: "tscroll" }, tbl), el("p", { class: "note", text: t("tbl_note") }));
+    return box;
+  }
+  function highlightRow(r) {
+    const key = r.join(",");
+    document.querySelectorAll("#result tr.hl").forEach((n) => n.classList.remove("hl"));
+    const tr = [...document.querySelectorAll("#result tr[data-r]")].find((n) => n.dataset.r === key);
+    if (tr) { tr.classList.add("hl"); tr.scrollIntoView({ block: "nearest", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }
+  }
+  async function copyTSV(rows) {
+    const hdr = ["feature", "tissue", "paradigm", "mode", "layer", "class", "direction", "g", "ci_low", "ci_high", "pi_low", "pi_high", "p", "k", "I2", "sig_up", "sig_down", "mouse_atlas", "rat_atlas", "unit_status"];
+    const repE = (code, c) => ["", c <= 4 ? "replicated" : "same direction, significant", "not significant", c <= 4 ? "opposite" : "opposite, significant"][code];
+    const lines = [hdr.join("\t")].concat(rows.map((x) => [S.cur.e[0], VE("tissue", x.u.t), VE("bt", x.u.b), VE("mode", x.u.m), VE("layer", x.u.l), VE("cls_badge", String(x.c)), DE[dirOf(x)],
+      x.g.toFixed(2), x.lo.toFixed(2), x.hi.toFixed(2), x.plo.toFixed(2), x.phi.toFixed(2), x.p.toPrecision(2), x.k, x.i2, x.nsp, x.nsn, repE(x.mo, x.c), repE(x.ra, x.c), x.u.st || ""].join("\t")));
+    const text = lines.join("\n"), btn = $("copytsv");
+    try { await navigator.clipboard.writeText(text); btn.textContent = t("tbl_copied"); setTimeout(() => (btn.textContent = t("tbl_copy")), 1600); }
+    catch (e) {
+      const ta = el("textarea", { style: "width:100%;height:140px;font-family:var(--ff-num);font-size:12px", dir: "ltr", "aria-label": "TSV" });
+      ta.value = text; btn.closest(".panel").append(ta); ta.focus(); ta.select(); btn.textContent = t("tbl_copy_fb");
+    }
+  }
+  function renderResult() {
+    const { e, d } = S.cur;
+    const all = d.r.map(R);
+    const box = $("result"); box.replaceChildren();
+    const isGene = !e[1].includes(":");
+    const links = el("span", { class: "links" });
+    if (isGene) links.append(el("a", { href: `https://www.ncbi.nlm.nih.gov/gene/${e[1]}`, target: "_blank", rel: "noopener", text: `NCBI Gene ${e[1]}` }));
+    if (e[1].startsWith("m:")) links.append(el("a", { href: `https://www.mirbase.org/results/?query=${encodeURIComponent(e[0])}`, target: "_blank", rel: "noopener", text: "miRBase" }));
+    if (e[1].startsWith("x:")) links.append(el("a", { href: `https://pubchem.ncbi.nlm.nih.gov/#query=${encodeURIComponent(e[0])}`, target: "_blank", rel: "noopener", text: "PubChem" }));
+    const layersIn = LS.filter((l, b) => e[3] & (1 << b)).map((l) => el("span", { class: "tag", text: V("layer", l) }));
+    box.append(el("div", { class: "res-head" }, el("h2", {}, el("bdi", { text: e[0] })), d.d ? el("span", { class: "desc", dir: "ltr", text: d.d }) : null, links,
+      el("span", { style: "display:flex;gap:6px;flex-wrap:wrap" }, ...layersIn)));
+    box.append(el("div", { class: "res-grid" }, verdict(all), geneGrid(all)));
+    box.append(table(visibleRows()));
+  }
+
+  // ---------- static texts, facts, ribbon, selects ----------
+  function applyStatic() {
+    document.querySelectorAll("[data-i18n]").forEach((n) => { n.textContent = t(n.dataset.i18n); });
+    document.querySelectorAll("[data-i18n-ph]").forEach((n) => { n.placeholder = t(n.dataset.i18nPh); });
+    $("lang").setAttribute("aria-label", t("lang_label"));
+  }
+  function renderFacts() {
+    const f = $("facts"); f.replaceChildren();
+    const items = [["f_contrasts", 1037], ["f_studies", 448], ["f_tissues", 20], ["f_species", 3], ["f_layers", 7], ["f_features", S.idx.length]];
+    for (const [k, n] of items) f.append(el("span", {}, ...tnodes(raw(k), { n: el("b", { text: ni(n) }) })));
+  }
+  function renderRibbon() {
+    const sc = S.meta.status_counts || {}, rb = $("ribbon"); rb.replaceChildren();
+    rb.append(el("span", { class: "lead" }, ...tnodes(raw("rb_lead"), { n: el("b", { text: ni(S.meta.status_cells) }) })));
+    for (const k of STATUS) {
+      rb.append(el("span", { class: "pill" }, el("span", { class: `sw ${STK[k]}` }),
+        ...tnodes(raw("rb_item"), { n: el("b", { class: "num", text: ni(sc[k] || 0) }), label: V("st_rb", k) })));
+    }
+    rb.append(el("button", { type: "button", onclick: () => show("map"), text: t("rb_map") }));
+  }
+  function fillSelects() {
+    const ts = $("tissue"), ls = $("layer");
+    const tv = ts.value, lv = ls.value;
+    ts.replaceChildren(el("option", { value: "", text: t("all_tissues") }));
+    for (const tt of S.meta.tissue_order) if (S.units.some((u) => u.t === tt)) ts.append(el("option", { value: tt, text: V("tissue", tt) }));
+    ls.replaceChildren(el("option", { value: "", text: t("all_layers") }));
+    for (const l of LS) if (S.units.some((u) => u.l === l)) ls.append(el("option", { value: l, text: V("layer", l) }));
+    ts.value = tv; ls.value = lv;
+  }
+
+  // ---------- map ----------
+  function renderMap() {
+    const cols = BLOCKS.flatMap(([l, bins]) => bins.map((b) => [l, b]));
+    const g = $("mgrid"); g.replaceChildren();
+    g.style.gridTemplateColumns = `max-content repeat(${cols.length}, 46px)`;
+    g.append(el("div", {}));
+    for (const [l, bins] of BLOCKS) g.append(el("div", { class: "blk", style: `grid-column: span ${bins.length}`, text: V("block", l) }));
+    g.append(el("div", {}));
+    for (const [, b] of cols) g.append(el("div", { class: "cl", text: V("bs", b) }));
+    const cell = new Map(S.map.map((c) => [`${c[0]}|${c[1]}|${c[2]}`, c]));
+    for (const tt of S.meta.tissue_order) {
+      g.append(el("div", { class: "rl", text: V("tissue", tt) }));
+      for (const [l, b] of cols) {
+        const c = cell.get(`${l}|${tt}|${b}`);
+        if (!c) { g.append(el("div", { class: "mc blank" })); continue; }
+        const st = c[3];
+        const n = el("button", { type: "button", class: `mc m-${STK[st]}`, "aria-label": `${V("tissue", tt)}, ${V("block", l)}, ${V("bs", b)}: ${V("st", st)[0]}, k ${ni(c[4])}` },
+          ni(c[4]), c[6] ? el("span", { class: "mk", text: "✓" }) : null, c[7] ? el("span", { class: "mk", text: "✗" }) : null);
+        if (S.mapSel && S.mapSel === c) n.classList.add("sel");
+        attachTip(n, () => `<b>${esc(V("tissue", tt))} · ${esc(V("block", l))} · ${esc(V("bs", b))}</b><br>${esc(V("st", st)[0])} · ${bd("k = " + ni(c[4]))}` +
+          (c[5].length ? `<br>${esc(t("map_graded", { n: c[5].map((i) => ni(S.units[i].g.slice(0, 3).reduce((a, v) => a + v, 0))).join(" / ") }))}` : ""));
+        n.addEventListener("click", () => { document.querySelectorAll(".mc.sel").forEach((m) => m.classList.remove("sel")); n.classList.add("sel"); S.mapSel = c; mapDetail(c, true); });
+        g.append(n);
+      }
+    }
+    const lg = $("mlegend"); lg.replaceChildren();
+    for (const k of STATUS) lg.append(el("span", { class: "pill", style: "white-space:normal" }, el("span", { class: `sw ${STK[k]}` }), el("span", {}, el("b", { text: V("st", k)[0] + ". " }), V("st", k)[1])));
+  }
+  function studyLinks(u) {
+    const box = el("div", { class: "studies" });
+    for (const [ids, sp, n] of u.s) {
+      for (const id of ids.split(/[;,\s]+/).filter(Boolean)) {
+        const href = id.startsWith("GSE") ? `https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=${id}` : id.startsWith("PXD") ? `https://www.ebi.ac.uk/pride/archive/projects/${id}`
+          : id.startsWith("ST") ? `https://www.metabolomicsworkbench.org/data/DRCCMetadata.php?Mode=Study&StudyID=${id}` : null;
+        const title = `${V("species", sp)}, n = ${ni(n)}`;
+        box.append(href ? el("a", { href, target: "_blank", rel: "noopener", title, dir: "ltr", text: id }) : el("span", { dir: "ltr", text: id }));
+      }
+    }
+    return box;
+  }
+  function mapDetail(c, scroll) {
+    const box = $("mdetail"); box.replaceChildren();
+    const [l, tt, b, status, k, ids] = c;
+    box.append(el("div", {}, el("p", { class: "eyebrow", text: `${V("block", l)} · ${V("bs", b)}` }), el("h3", { text: V("tissue", tt) })),
+      el("span", { class: "stp", style: "white-space:normal" }, el("span", { class: `sw ${STK[status]}` }), el("b", { text: V("st", status)[0] }), ` — ${V("st", status)[1]}`));
+    if (!ids.length) {
+      box.append(el("p", { style: "margin:0;color:var(--ink2)", text: status === "not re-analysed" ? t("d_nra", { k: ni(k) }) : t("d_few", { k: ni(k) }) }));
+    } else {
+      for (const i of ids) {
+        const u = S.units[i];
+        const gr = u.g.slice(0, 3).reduce((a, v) => a + v, 0);
+        const kv = (label, val) => el("span", {}, `${label} `, el("b", {}, num(val)));
+        const unit = el("div", { class: "unit" }, el("h4", { text: `${V("bt", u.b)} · ${V("mode", u.m)}` }),
+          el("div", { class: "kv" }, kv(t("d_k"), ni(u.k)), kv(t("d_n"), ni(u.n)), kv(t("d_g"), `${ni(u.g[0])} / ${ni(u.g[1])} / ${ni(u.g[2])}`),
+            kv(t("d_w"), ni(u.g[3])), kv(t("d_inc"), ni(u.g[4])), kv(t("d_null"), ni(u.g[5])),
+            u.st ? el("span", {}, `${t("d_status")} `, el("b", { text: V("st", u.st)[0] })) : null,
+            u.q && u.q.zm != null ? kv(t("d_zm"), nf(u.q.zm, 1)) : null, u.q && u.q.zr != null ? kv(t("d_zr"), nf(u.q.zr, 1)) : null,
+            u.q && u.q.sh != null ? kv(t("d_sh"), `${nf(u.q.sh, 1)}×`) : null, u.q && u.q.cal != null ? kv(t("d_cal"), pct(Math.round(u.q.cal * 100))) : null));
+        const top = S.top[i] || [];
+        if (top.length) {
+          const chips = el("div", { class: "chips" }, el("span", { text: l === "metabolome" || l === "miRNA" ? t("d_top_feats") : t("d_top_genes") }));
+          for (const [key, name, cls, g100] of top.slice(0, 20)) {
+            chips.append(el("button", { type: "button", class: "chip", dir: "ltr", title: `${clsLabel(cls)}, g = ${nf(g100 / 100)}`,
+              onclick: () => { show("lookup"); q.value = name; S.tissue = tt; $("tissue").value = tt; lookup(key); }, text: `${name} ${g100 > 0 ? "↑" : "↓"}` }));
+          }
+          unit.append(chips);
+        } else if (gr === 0) unit.append(el("p", { style: "margin:0;color:var(--ink2)", text: t("d_nograded") }));
+        unit.append(el("details", {}, el("summary", { text: t("d_contrib", { k: ni(u.s.length) }) }), studyLinks(u)));
+        box.append(unit);
+      }
+    }
+    if (scroll) box.scrollIntoView({ block: "nearest", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  }
+
+  // ---------- checklist + about ----------
+  function renderText() {
+    const ck = raw("ck");
+    $("ck-eyebrow").textContent = ck.eyebrow; $("ck-title").textContent = ck.title; $("ck-intro").textContent = ck.intro;
+    $("ck-th").replaceChildren(...ck.th.map((h) => el("th", { text: h })));
+    $("ck-body").replaceChildren(...ck.rows.map((row) => el("tr", {}, ...row.map((c) => el("td", { text: c })))));
+    const ab = raw("ab"), box = $("about"); box.replaceChildren();
+    const dl1 = el("dl", {});
+    for (const c of [1, 2, 3, 4, 5, 6]) {
+      const name = V("cls_name", String(c)).split(" · ");
+      dl1.append(el("dt", {}, el("span", { class: `badge k${c}`, text: V("cls_badge", String(c)) }), " ", name.length > 1 ? name[1] : ""), el("dd", { text: V("cls_def", String(c)) }));
+    }
+    dl1.append(el("dt", { text: t("ins_name") }), el("dd", { text: t("ins_def") }));
+    const dl2 = el("dl", {});
+    for (const k of STATUS) dl2.append(el("dt", {}, el("span", { class: "stp" }, el("span", { class: `sw ${STK[k]}` }), V("st", k)[0])), el("dd", { text: V("st", k)[1] }));
+    const dl0 = el("dl", { id: "dir-defs" });
+    for (const d of DIRS) dl0.append(el("dt", {}, el("span", { class: `dir d-${d}` }, `${DG[d]} ${t("dir_" + d)}`)), el("dd", { text: t("dir_" + d + "_t") }));
+    box.append(el("p", { class: "eyebrow", text: ab.eyebrow }), el("h2", { text: ab.title }), el("p", { text: ab.p1 }),
+      el("h3", { text: ab.h_g }), el("p", { text: ab.p_eff }), el("p", { text: ab.p_g }),
+      el("h3", { text: ab.h_dir }), dl0,
+      el("h3", { text: ab.h_cls }), dl1, el("h3", { text: ab.h_rep }), el("p", { text: ab.p_rep }), el("h3", { text: ab.h_st }), dl2,
+      el("h3", { text: ab.h_cav }), el("ul", {}, ...ab.cav.map((c) => el("li", { text: c }))),
+      el("h3", { text: ab.h_cite }), el("p", { class: "cite", text: S.I18N.cite }));
+  }
+
+  // ---------- views ----------
+  const VIEWS = ["lookup", "map", "checklist", "about"];
+  function show(v) {
+    for (const x of VIEWS) {
+      const sec = $(`v-${x}`), tab = $(`t-${x}`), on = x === v;
+      sec.hidden = !on; if (on) sec.style.display = "grid";
+      tab.setAttribute("aria-selected", on ? "true" : "false");
+    }
+    try { localStorage.setItem("exgrade-view", v); } catch (e) { /* storage unavailable */ }
+  }
+  document.querySelectorAll("nav.tabs button").forEach((b) => b.addEventListener("click", () => show(b.dataset.v)));
+  $("tissue").addEventListener("change", (ev) => { S.tissue = ev.target.value; if (S.cur) renderResult(); });
+  $("layer").addEventListener("change", (ev) => { S.layer = ev.target.value; if (S.cur) renderResult(); });
+  $("bymode").addEventListener("change", (ev) => { S.bymode = ev.target.checked; if (S.cur) renderResult(); });
+
+  // ---------- language ----------
+  function loadFont(spec) {
+    if (!spec || S.fonts.has(spec)) return;
+    S.fonts.add(spec);
+    document.head.append(el("link", { rel: "stylesheet", href: `https://fonts.googleapis.com/css2?family=${spec}&display=swap` }));
+  }
+  function detectLang() {
+    const codes = S.I18N.langs.map((l) => l.code);
+    const h = decodeURIComponent((location.hash || "").slice(1));
+    if (codes.includes(h)) return h;
+    try { const s = localStorage.getItem("exgrade-lang"); if (codes.includes(s)) return s; } catch (e) { /* storage unavailable */ }
+    for (const n of navigator.languages || [navigator.language || "en"]) {
+      const x = String(n).toLowerCase();
+      if (/^zh-(tw|hk|mo)|^zh-hant/.test(x)) return "zh-Hant";
+      if (x.startsWith("zh")) return "zh-Hans";
+      for (const c of ["ja", "ko", "ar", "es", "fr", "de", "pt", "ru", "en"]) if (x === c || x.startsWith(c + "-")) return c;
+    }
+    return "en";
+  }
+  function setLang(code, persist) {
+    const L = S.I18N.langs.find((l) => l.code === code) || S.I18N.langs[0];
+    S.L = L; S.T = S.I18N.s[L.code]; S.intl = L.intl; S.nfc.clear();
+    try { S.plural = new Intl.PluralRules(L.intl); } catch (e) { S.plural = new Intl.PluralRules("en"); }
+    document.documentElement.lang = L.code; document.documentElement.dir = L.dir;
+    loadFont(L.font);
+    $("lang").value = L.code;
+    if (persist) { try { localStorage.setItem("exgrade-lang", L.code); } catch (e) { /* storage unavailable */ } }
+    applyStatic(); renderFacts(); renderRibbon(); fillSelects(); renderMap(); renderText();
+    if (S.cur) renderResult();
+    if (S.mapSel) mapDetail(S.mapSel, false);
+  }
+  $("lang").addEventListener("change", (ev) => setLang(ev.target.value, true));
+
+  // ---------- boot ----------
+  async function boot() {
+    try {
+      const [U, I, L] = await Promise.all([getJSON("data/units.json"), getJSON("data/index.json"), getJSON("data/i18n.json")]);
+      S.units = U.units; S.map = U.map; S.top = U.top; S.meta = U.meta; S.idx = I.f; S.I18N = L; S.EN = L.s.en;
+      S.up = S.idx.map((e) => e[0].toUpperCase());
+      for (const e of S.idx) { S.byKey.set(e[1], e); const k = e[0].toUpperCase(); if (!S.byUp.has(k)) S.byUp.set(k, []); S.byUp.get(k).push(e); }
+      $("lang").replaceChildren(...L.langs.map((l) => el("option", { value: l.code, lang: l.code, dir: l.dir, text: l.name })));
+      const chips = $("chips");
+      for (const name of EXAMPLES) { const e = (S.byUp.get(name) || [])[0]; if (e) chips.append(el("button", { type: "button", class: "chip", text: name, onclick: () => choose(e) })); }
+      setLang(detectLang(), false);
+      let start = "PPARGC1A", view = "lookup";
+      const h = decodeURIComponent((location.hash || "").slice(1));
+      if (VIEWS.includes(h)) view = h; else if (/^g-/.test(h)) start = h.slice(2);
+      else { try { const v = localStorage.getItem("exgrade-view"); if (VIEWS.includes(v)) view = v; } catch (e) { /* storage unavailable */ } }
+      show(view);
+      const e = (S.byUp.get(start.toUpperCase()) || [])[0] || S.byUp.get("PPARGC1A")[0];
+      q.value = e[0]; lookup(e[1]);
+    } catch (err) {
+      $("result").replaceChildren(el("div", { class: "msg", text: "The atlas data could not be loaded. Open ExGrade from its published link and try again." }));
+      $("ribbon").replaceChildren(el("span", { class: "lead", text: "Data unavailable." }));
+    }
+  }
+  boot();
+})();
+</script>
