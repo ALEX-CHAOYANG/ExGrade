@@ -71,6 +71,8 @@ bdi.n { font-size: 0.93em; }
 .langsel { margin-inline-start: auto; display: inline-flex; align-items: center; gap: 6px; color: var(--ink2); }
 .langsel select { font-size: 13.5px; padding-block: 6px; }
 .facts { display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--muted); font-size: 13px; }
+.citebar { margin: 10px 0 0; font-size: 13px; color: var(--muted); line-height: 1.45; direction: ltr; text-align: left; }
+.citebar span { color: var(--ink); font-weight: 600; margin-inline-end: 4px; }
 .facts b { color: var(--ink); font-weight: 600; font-family: var(--ff-num); font-variant-numeric: tabular-nums; }
 nav.tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
 nav.tabs button { font: inherit; font-size: 14px; font-weight: 600; color: var(--ink2); background: none; border: 0; border-bottom: 3px solid transparent;
@@ -382,6 +384,7 @@ footer .wrap { padding-block: 16px 28px; display: flex; flex-wrap: wrap; gap: 6p
       </label>
     </div>
     <div class="facts" id="facts"></div>
+    <p class="citebar"><span data-i18n="cite_lead">If you use ExGrade, please cite:</span> <a href="https://doi.org/10.64898/2026.11.06.764830" target="_blank" rel="noopener">Li C. &amp; Su Q. Uniformly re-analysed public omics data and graded meta-analyses of exercise responses in humans and rodents. <i>bioRxiv</i> (2026). doi:10.64898/2026.11.06.764830</a></p>
     <nav class="tabs" role="tablist" aria-label="Views">
       <button role="tab" id="t-lookup" aria-selected="true" aria-controls="v-lookup" data-v="lookup" data-i18n="tab_lookup">Look up a gene</button>
       <button role="tab" id="t-map" aria-selected="false" aria-controls="v-map" data-v="map" data-i18n="tab_map">Evidence map</button>
