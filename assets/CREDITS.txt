@@ -1,0 +1,40 @@
+ExGrade portal artwork: sources, licences and changes
+
+Body maps: body/human.svg, body/mouse.svg, body/rat.svg
+  Adapted from the EMBL-EBI Expression Atlas anatomograms homo_sapiens.male.svg, mus_musculus.male.svg and rattus_norvegicus.svg
+  (npm package @ebi-gene-expression-group/anatomogram 2.4.0; https://github.com/ebi-gene-expression-group/anatomogram).
+  Licence: Creative Commons Attribution 4.0 International (CC BY 4.0), https://creativecommons.org/licenses/by/4.0/
+  Changes: organs the portal does not use were removed and the rest grouped into the portal's tissues and recoloured;
+  shapes were drawn in for organs the anatomograms do not show: supraclavicular brown adipose tissue (human); hippocampus,
+  gonadal white adipose tissue and pancreas (mouse); hippocampus, spinal cord, aorta, interscapular brown and retroperitoneal
+  white adipose tissue, pancreas, thigh muscle, forelimb bones with marrow, and elbow cartilage (rat).
+
+Tissue and species pictures: icons/<name>.svg (obtained through Bioicons, https://bioicons.com)
+  icons/skeletal_muscle.svg  <-  'muscle-fiber' by Servier Medical Art (https://smart.servier.com/); licence CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/); trimmed and optimised
+  icons/heart.svg  <-  'heart' by Servier Medical Art (https://smart.servier.com/); licence CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/); trimmed and optimised
+  icons/liver.svg  <-  'liver' by Servier Medical Art (https://smart.servier.com/); licence CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/); trimmed and optimised
+  icons/kidney.svg  <-  'kidney-1' by Servier Medical Art (https://smart.servier.com/); licence CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/); trimmed and optimised
+  icons/lung.svg  <-  'lung' by Servier Medical Art (https://smart.servier.com/); licence CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/); trimmed and optimised
+  icons/brain_other.svg  <-  'brain-2' by Servier Medical Art (https://smart.servier.com/); licence CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/); trimmed and optimised
+  icons/hippocampus.svg  <-  'Frontal_plane_of_the_brain_hippocampus' by DBCLS TogoTV (https://togotv.dbcls.jp/en/pics.html); licence CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/); trimmed and optimised
+  icons/spinal_cord.svg  <-  'spinal-cord_anterior-horn-cells_motor-nerves_muscles' by DBCLS TogoTV (https://togotv.dbcls.jp/en/pics.html); licence CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/); cropped to the spinal-cord segment
+  icons/intestine.svg  <-  'small-intestine-2' by Servier Medical Art (https://smart.servier.com/); licence CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/); trimmed and optimised
+  icons/pancreas.svg  <-  'pancreas' by Servier Medical Art (https://smart.servier.com/); licence CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/); trimmed and optimised
+  icons/WAT.svg  <-  'fat-tissue' by Servier Medical Art (https://smart.servier.com/); licence CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/); trimmed and optimised
+  icons/BAT.svg  <-  'fat-tissue' by Servier Medical Art (https://smart.servier.com/); licence CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/); recoloured
+  icons/bone.svg  <-  'Lateral_view_of_right_hip_bone' by DBCLS TogoTV (https://togotv.dbcls.jp/en/pics.html); licence CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/); trimmed and optimised
+  icons/bone_marrow.svg  <-  'hematopoetic-stem-cell' by Servier Medical Art (https://smart.servier.com/); licence CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/); trimmed and optimised
+  icons/tendon_cartilage.svg  <-  'Anterior_view_of_knee_joint' by DBCLS TogoTV (https://togotv.dbcls.jp/en/pics.html); licence CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/); trimmed and optimised
+  icons/vascular.svg  <-  'aorta' by Servier Medical Art (https://smart.servier.com/); licence CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/); trimmed and optimised
+  icons/blood_immune.svg  <-  'erythrocyte-2' by Servier Medical Art (https://smart.servier.com/); licence CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/); combined
+  icons/blood_immune.svg  <-  't-lymphocyte' by Servier Medical Art (https://smart.servier.com/); licence CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/); combined
+  icons/circulating.svg  <-  'testtube-yellow' by Servier Medical Art (https://smart.servier.com/); licence CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/); trimmed and optimised
+  icons/muscle_stem_cell.svg  <-  'muscle-3' by Servier Medical Art (https://smart.servier.com/); licence CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/); combined
+  icons/muscle_stem_cell.svg  <-  'normal-cell-1' by Servier Medical Art (https://smart.servier.com/); licence CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/); combined
+  icons/other.svg  <-  'stomach' by Servier Medical Art (https://smart.servier.com/); licence CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/); combined
+  icons/other.svg  <-  'spleen-1' by Servier Medical Art (https://smart.servier.com/); licence CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/); combined
+  icons/sp_human.svg  <-  'runner' by Servier Medical Art (https://smart.servier.com/); licence CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/); trimmed and optimised
+  icons/sp_mouse.svg  <-  'mouse-darkgray' by Servier Medical Art (https://smart.servier.com/); licence CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/); trimmed and optimised
+  icons/sp_rat.svg  <-  'rat-white' by Servier Medical Art (https://smart.servier.com/); licence CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/); trimmed and optimised
+
+All pictures were sanitised (scripts, metadata and editor data removed), trimmed to their visible bounds and optimised.
