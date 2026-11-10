@@ -1,3 +1,5 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ExGrade</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="ExGrade: graded cross-study evidence for molecular effects of exercise, by gene, tissue, exercise paradigm and molecular layer.">
@@ -205,6 +207,131 @@ button.mc { cursor: pointer; }
 .studies a { font-family: var(--ff-num); }
 details summary { cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--ink2); }
 
+/* visual browser: species cards, body map, tissue list, selection summary */
+:root {
+  --anat: #a2aab5; --plate: #f0f2f5; --o-line: rgba(20, 24, 32, 0.30); --o-na: #e9ecf0; --o-na-line: #c4cbd4;
+  --o-brain: #eab3c9; --o-hip: #a9558a; --o-cord: #8f72c0; --o-lung: #f1b6bd; --o-heart: #d24b4b; --o-liver: #a85a35; --o-panc: #eec27d;
+  --o-kid: #9c3b4a; --o-gut: #e9a59c; --o-wat: #f2d066; --o-bat: #8a5a2e; --o-mus: #c8553d; --o-ten: #7fa3c6; --o-bone: #e3d6b3;
+  --o-mar: #d0464c; --o-vas: #d43a3a;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --anat: #6e7885; --plate: #dfe3e9; --o-line: rgba(0, 0, 0, 0.50); --o-na: #252c35; --o-na-line: #46505c;
+    --o-brain: #c98aa6; --o-hip: #d184b6; --o-cord: #a58fd6; --o-lung: #c98d95; --o-heart: #d65b5b; --o-liver: #a7643f; --o-panc: #d4ad6a;
+    --o-kid: #b4576a; --o-gut: #c98b84; --o-wat: #d8b955; --o-bat: #9b6a3c; --o-mus: #c9634c; --o-ten: #8399b0; --o-bone: #d3c7a6;
+    --o-mar: #d65b60; --o-vas: #e05555;
+  }
+}
+:root[data-theme="dark"] {
+  --anat: #6e7885; --plate: #dfe3e9; --o-line: rgba(0, 0, 0, 0.50); --o-na: #252c35; --o-na-line: #46505c;
+  --o-brain: #c98aa6; --o-hip: #d184b6; --o-cord: #a58fd6; --o-lung: #c98d95; --o-heart: #d65b5b; --o-liver: #a7643f; --o-panc: #d4ad6a;
+  --o-kid: #b4576a; --o-gut: #c98b84; --o-wat: #d8b955; --o-bat: #9b6a3c; --o-mus: #c9634c; --o-ten: #8399b0; --o-bone: #d3c7a6;
+  --o-mar: #d65b60; --o-vas: #e05555;
+}
+.vis { padding: 16px 18px 18px; display: grid; gap: 14px; }
+.vis-head { display: grid; gap: 2px; }
+.vis-head .hint { margin: 0; color: var(--ink2); font-size: 14px; max-width: 90ch; }
+.vis-body { display: grid; grid-template-columns: minmax(196px, 226px) minmax(0, 1fr) minmax(300px, 384px); gap: 18px; align-items: start; }
+/* species cards */
+.spp { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-content: start; }
+.spp .sp { font: inherit; display: grid; justify-items: center; gap: 2px; padding: 6px 6px 8px; border: 1.5px solid var(--line2); border-radius: var(--r);
+  background: var(--raise); color: var(--ink); cursor: pointer; min-width: 0; }
+.spp .sp:hover { border-color: var(--accent); }
+.spp .sp[aria-pressed="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); box-shadow: inset 0 0 0 1px var(--accent); }
+.spp .sp .icos { display: flex; align-items: flex-end; justify-content: center; gap: 3px; width: 100%; height: 52px; padding: 5px 6px; margin-bottom: 3px;
+  border-radius: 6px; background: var(--plate); overflow: hidden; }
+.spp .sp .icos img { display: block; height: 42px; width: auto; max-width: 100%; min-width: 0; object-fit: contain; object-position: bottom; }
+.spp .sp .icos.all img { height: 28px; flex: 0 1 auto; }
+.spp .sp .icos img.mouse { height: 36px; } .spp .sp .icos img.rat { height: 32px; }
+.spp .sp .icos.all img.mouse { height: 22px; } .spp .sp .icos.all img.rat { height: 20px; }
+.spp .sp .nm { font-weight: 700; font-size: 13.5px; line-height: 1.25; text-align: center; }
+.spp .sp .ct { font-size: 12px; color: var(--muted); }
+/* body map (EMBL-EBI Expression Atlas anatomograms, adapted) */
+.bodywrap { display: grid; justify-items: center; align-self: center; min-width: 0; }
+#bodymap { width: 100%; display: flex; justify-content: center; min-height: 220px; }
+svg.anat { display: block; width: 100%; height: auto; overflow: visible; }
+svg.anat.human { max-width: 334px; max-height: 614px; }
+svg.anat.mouse { max-width: 318px; max-height: 614px; }
+svg.anat.rat { max-width: 540px; }
+svg.anat .outline path { fill: var(--anat); }
+svg.anat .org { cursor: pointer; outline: none; }
+svg.anat .org * { fill: var(--oc); stroke: var(--o-line); stroke-width: 0.6px; vector-effect: non-scaling-stroke; }
+[data-t=brain_other] { --oc: var(--o-brain); } [data-t=hippocampus] { --oc: var(--o-hip); } [data-t=spinal_cord] { --oc: var(--o-cord); }
+[data-t=lung] { --oc: var(--o-lung); } [data-t=heart] { --oc: var(--o-heart); } [data-t=liver] { --oc: var(--o-liver); }
+[data-t=pancreas] { --oc: var(--o-panc); } [data-t=kidney] { --oc: var(--o-kid); } [data-t=intestine] { --oc: var(--o-gut); }
+[data-t=WAT] { --oc: var(--o-wat); } [data-t=BAT] { --oc: var(--o-bat); } [data-t=skeletal_muscle] { --oc: var(--o-mus); }
+[data-t=tendon_cartilage] { --oc: var(--o-ten); } [data-t=bone] { --oc: var(--o-bone); } [data-t=bone_marrow] { --oc: var(--o-mar); }
+[data-t=vascular] { --oc: var(--o-vas); }
+/* availability: few = studied but too few to grade; na = no studies for the chosen species */
+svg.anat .org.few * { fill-opacity: 0.42; stroke-dasharray: 2 2; }
+svg.anat .org.na { cursor: default; }
+svg.anat .org.na * { fill: var(--o-na); stroke: var(--o-na-line); }
+svg.anat.has-sel .org:not(.sel):not(.hl):not(:hover) { opacity: 0.45; }
+svg.anat .org:not(.na):hover *, svg.anat .org:not(.na):focus-visible *, svg.anat .org.hl:not(.na) * {
+  stroke: color-mix(in srgb, var(--oc) 35%, var(--ink)); stroke-width: 1px; fill-opacity: 1; stroke-dasharray: none; }
+svg.anat .org:not(.na):hover, svg.anat .org:not(.na):focus-visible, svg.anat .org.hl:not(.na) { filter: drop-shadow(0 0 2px color-mix(in srgb, var(--ink) 30%, transparent)); }
+svg.anat .org.sel * { stroke: color-mix(in srgb, var(--oc) 45%, #000); stroke-width: 0.8px; fill-opacity: 1; stroke-dasharray: none; }
+svg.anat .org.sel { filter: drop-shadow(0 0 1.2px var(--accent)) drop-shadow(0 0 5px color-mix(in srgb, var(--accent) 50%, transparent)); }
+/* tissue list */
+.tiles-wrap { display: grid; gap: 8px; align-content: start; min-width: 0; }
+.tiles-wrap .lbl { margin: 0; font-size: 12.5px; font-weight: 700; color: var(--ink2); }
+.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.tile { font: inherit; display: grid; grid-template-columns: 40px minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 9px; row-gap: 1px; align-items: center;
+  text-align: start; padding: 5px 8px 5px 5px; border: 1px solid var(--line); border-radius: 8px; background: var(--raise); color: var(--ink); cursor: pointer; min-width: 0; }
+.tile .ti { grid-row: 1 / span 2; width: 40px; height: 40px; border-radius: 6px; background: var(--plate); display: grid; place-items: center; }
+.tile .ti img { display: block; max-width: 33px; max-height: 33px; }
+.tile .tn { font-size: 13px; font-weight: 600; line-height: 1.2; overflow-wrap: anywhere; align-self: end; }
+.tile .tc { font-size: 11.5px; line-height: 1.25; color: var(--muted); align-self: start; }
+.tile:hover:not(:disabled), .tile.hl:not(:disabled) { border-color: var(--accent); }
+.tile[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: color-mix(in srgb, var(--accent) 9%, var(--surface)); }
+.tile.few { border-style: dashed; }
+.tile:disabled { cursor: default; color: var(--muted); background: transparent; border-style: dashed; }
+.tile:disabled .ti img { filter: grayscale(1); opacity: 0.4; }
+.tiles-wrap .legend { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
+/* selection summary */
+.vsum { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 12px 28px; align-items: start; padding-top: 14px; border-top: 1px solid var(--line); }
+.vsum[hidden] { display: none; }
+.vcol { display: grid; gap: 10px; align-content: start; min-width: 0; }
+.vhead { display: grid; grid-template-columns: 58px minmax(0, 1fr); gap: 12px; align-items: center; }
+.vhead .ti { width: 58px; height: 58px; border-radius: 10px; background: var(--plate); display: grid; place-items: center; }
+.vhead .ti img { display: block; max-width: 48px; max-height: 48px; }
+.vhead .eyebrow { margin: 0; }
+.vsum h3 { margin: 0; font-family: var(--ff-display); font-size: 21px; line-height: 1.2; }
+.vsum .sub { margin: 0; color: var(--ink2); font-size: 13.5px; }
+.vsum .lbl { margin: 2px 0 0; font-size: 12.5px; font-weight: 700; color: var(--ink2); }
+.ulist { display: grid; gap: 4px; }
+.urow { font: inherit; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; text-align: start; align-items: baseline; padding: 6px 9px;
+  border: 1px solid var(--line); border-radius: 5px; background: var(--raise); color: var(--ink); cursor: pointer; font-size: 13px; }
+.urow:hover { border-color: var(--accent); }
+.urow[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.urow .u2 { color: var(--muted); font-size: 12px; white-space: nowrap; }
+.urow .gr { grid-column: 1 / -1; color: var(--ink2); font-size: 12px; }
+.vclear { font: inherit; font-size: 13px; background: none; border: 0; padding: 0; color: var(--accent); text-decoration: underline; cursor: pointer; justify-self: start; }
+.spnote { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; }
+.spnote b { font-weight: 700; }
+#artcredit a { color: inherit; }
+@media (max-width: 1060px) {
+  .vis-body { grid-template-columns: minmax(196px, 226px) minmax(0, 1fr); }
+  .tiles-wrap { grid-column: 1 / -1; }
+  .tiles { grid-template-columns: repeat(auto-fill, minmax(176px, 1fr)); }
+}
+@media (max-width: 760px) {
+  .vsum { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 640px) {
+  .vis-body { grid-template-columns: minmax(0, 1fr); }
+  .spp { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .spp .sp { padding: 4px 3px 6px; } .spp .sp .icos { height: 40px; padding: 4px 3px; } .spp .sp .icos img { height: 31px; }
+  .spp .sp .icos img.mouse { height: 26px; } .spp .sp .icos img.rat { height: 22px; }
+  .spp .sp .icos.all img { height: 19px; } .spp .sp .icos.all img.mouse { height: 15px; } .spp .sp .icos.all img.rat { height: 13px; }
+  .spp .sp .nm { font-size: 12px; } .spp .sp .ct { font-size: 11px; }
+  svg.anat.human, svg.anat.mouse { max-height: 380px; }
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tile { grid-template-columns: 34px minmax(0, 1fr); column-gap: 7px; padding: 4px 6px 4px 4px; }
+  .tile .ti { width: 34px; height: 34px; } .tile .ti img { max-width: 28px; max-height: 28px; }
+  .tile .tn { font-size: 12.5px; }
+}
+
 /* text views */
 .prose { padding: 22px 24px; display: grid; gap: 14px; }
 .prose h2 { font-family: var(--ff-display); font-size: 24px; margin: 0; text-wrap: balance; }
@@ -292,6 +419,19 @@ footer .wrap { padding-block: 16px 28px; display: flex; flex-wrap: wrap; gap: 6p
         </div>
         <div class="chips" id="chips"><span data-i18n="try">Try:</span></div>
       </div>
+      <div class="panel vis" id="vis">
+        <div class="vis-head">
+          <p class="eyebrow" data-i18n="vis_eyebrow">Browse by species and organ</p>
+          <p class="hint" data-i18n="vis_hint">Choose an animal, then click an organ to filter the results; click the organ again to clear it.</p>
+        </div>
+        <div class="vis-body">
+          <div class="spp" id="spp" role="group"></div>
+          <div class="bodywrap"><div id="bodymap"></div></div>
+          <div class="tiles-wrap"><p class="lbl" id="tiles-lbl" data-i18n="vis_tiles">Tissues</p><div class="tiles" id="tiles" role="group" aria-labelledby="tiles-lbl"></div>
+            <p class="legend" data-i18n="vis_legend">Dashed outline: studied, but too few studies to grade.</p></div>
+        </div>
+        <div class="vsum" id="vsum" aria-live="polite" hidden></div>
+      </div>
       <div id="result" style="display:grid;gap:18px"><div class="panel loading">Loading the ExGrade atlas…</div></div>
     </section>
 
@@ -327,6 +467,7 @@ footer .wrap { padding-block: 16px 28px; display: flex; flex-wrap: wrap; gap: 6p
   <span data-i18n="ft_version">ExGrade v1.0 · October 2026</span>
   <span data-i18n="ft_sources">Source data: GEO, PRIDE, Metabolomics Workbench; held-out atlases: MoTrPAC (rat), Maier et al. (mouse)</span>
   <span data-i18n="ft_tables">Effect sizes and grades for every feature are also provided as Supplementary Tables with the paper.</span>
+  <span id="artcredit"></span>
 </div></footer>
 <div id="tip" role="tooltip" hidden></div>
 
@@ -346,7 +487,8 @@ footer .wrap { padding-block: 16px 28px; display: flex; flex-wrap: wrap; gap: 6p
 
   const S = { units: [], map: [], top: {}, meta: {}, idx: [], byKey: new Map(), byUp: new Map(), up: [], aliases: null, shards: new Map(),
     cur: null, tissue: "", layer: "", bymode: false, sel: -1, sugg: [], mapSel: null, I18N: null, T: null, EN: null, L: null, intl: "en",
-    plural: null, nfc: new Map(), fonts: new Set() };
+    plural: null, nfc: new Map(), fonts: new Set(), species: "", visUnit: null };
+  const SPECIES = ["", "human", "mouse", "rat"];
   const $ = (id) => document.getElementById(id);
   const el = (tag, attrs = {}, ...kids) => {
     const e = document.createElement(tag);
@@ -359,6 +501,24 @@ footer .wrap { padding-block: 16px 28px; display: flex; flex-wrap: wrap; gap: 6p
     return e;
   };
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  // ---------- body maps and pictures ----------
+  // Body maps are adapted from the EMBL-EBI Expression Atlas anatomograms (CC BY 4.0); every clickable organ is a <g class="org"
+  // data-t="tissue key">. Tissue and species pictures are adapted from Servier Medical Art (CC BY 3.0) and DBCLS TogoTV
+  // (CC BY 4.0). Sources, licences and changes: assets/CREDITS.txt (built by code/43_portal_art.py).
+  const ART = "assets/";
+  const PIC = (key) => `${ART}icons/${key}.svg`;
+  const BODY = (() => {
+    const cache = new Map();
+    const load = (kind) => {
+      if (!cache.has(kind)) {
+        cache.set(kind, fetch(`${ART}body/${kind}.svg`).then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.text(); })
+          .catch((e) => { cache.delete(kind); throw e; }));
+      }
+      return cache.get(kind);
+    };
+    return { load };
+  })();
 
   // ---------- i18n ----------
   const raw = (k) => (S.T && S.T[k] != null ? S.T[k] : S.EN && S.EN[k] != null ? S.EN[k] : k);
@@ -665,7 +825,7 @@ footer .wrap { padding-block: 16px 28px; display: flex; flex-wrap: wrap; gap: 6p
     return box;
   }
   function tipRow(x) {
-    let h = `<b>${esc(unitBits(x, true))}</b><br>${esc(DG[dirOf(x)] + " " + t("dir_" + dirOf(x)))} · ${esc(V("cls_name", String(x.c)))}<br>${bd(`g = ${nf(x.g)} ${ci(x.lo, x.hi)} · P = ${fp(x.p)}`)}<br>` +
+    let h = `<b>${esc(unitBits(x, true))}</b>${S.species ? ` · ${esc(V("sp_cap", S.species))}` : ""}<br>${esc(DG[dirOf(x)] + " " + t("dir_" + dirOf(x)))} · ${esc(V("cls_name", String(x.c)))}<br>${bd(`g = ${nf(x.g)} ${ci(x.lo, x.hi)} · P = ${fp(x.p)}`)}<br>` +
       bd(`k = ${ni(x.k)} · I² = ${pct(x.i2)} · ↑${ni(x.nsp)} ↓${ni(x.nsn)}`);
     if (x.mo || x.ra) h += `<br>${esc(t("th_mouse"))}: ${esc(repShort(x.mo, x.c)[1])} · ${esc(t("th_rat"))}: ${esc(repShort(x.ra, x.c)[1])}`;
     return h;
@@ -686,8 +846,16 @@ footer .wrap { padding-block: 16px 28px; display: flex; flex-wrap: wrap; gap: 6p
     return rows.sort((a, b) => tOrder(a.u.t) - tOrder(b.u.t) || bOrder[a.u.b] - bOrder[b.u.b] || LS.indexOf(a.u.l) - LS.indexOf(b.u.l) ||
       (a.u.v === "L2" ? 0 : 1) - (b.u.v === "L2" ? 0 : 1) || mOrder[a.u.m] - mOrder[b.u.m]);
   }
+  // species filter: with no species chosen, the pooled rows of the paper; with a species chosen, single-species units as they are
+  // plus the species-stratified rows (post hoc) of units that mix species. Units with < 3 studies of that species have no row.
+  const isPure = (u, sp) => !u.sp && u.sc && Object.keys(u.sc).length === 1 && u.sc[sp] > 0;
+  function rowsFor(d) {
+    const sp = S.species;
+    if (!sp) return d.r.map(R);
+    return [...d.r.filter((r) => isPure(S.units[r[0]], sp)), ...(d.p || []).filter((r) => S.units[r[0]].sp === sp)].map(R);
+  }
   function visibleRows() {
-    let rows = S.cur.d.r.map(R);
+    let rows = rowsFor(S.cur.d);
     if (S.layer) rows = rows.filter((x) => x.u.l === S.layer);
     if (!S.bymode) rows = rows.filter((x) => x.u.v === "L2");
     return rows;
@@ -733,9 +901,10 @@ footer .wrap { padding-block: 16px 28px; display: flex; flex-wrap: wrap; gap: 6p
     if (tr) { tr.classList.add("hl"); tr.scrollIntoView({ block: "nearest", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }
   }
   async function copyTSV(rows) {
-    const hdr = ["feature", "tissue", "paradigm", "mode", "layer", "class", "direction", "g", "ci_low", "ci_high", "pi_low", "pi_high", "p", "k", "I2", "sig_up", "sig_down", "mouse_atlas", "rat_atlas", "unit_status"];
+    const hdr = ["feature", "species", "tissue", "paradigm", "mode", "layer", "class", "direction", "g", "ci_low", "ci_high", "pi_low", "pi_high", "p", "k", "I2", "sig_up", "sig_down", "mouse_atlas", "rat_atlas", "unit_status"];
     const repE = (code, c) => ["", c <= 4 ? "replicated" : "same direction, significant", "not significant", c <= 4 ? "opposite" : "opposite, significant"][code];
-    const lines = [hdr.join("\t")].concat(rows.map((x) => [S.cur.e[0], VE("tissue", x.u.t), VE("bt", x.u.b), VE("mode", x.u.m), VE("layer", x.u.l), VE("cls_badge", String(x.c)), DE[dirOf(x)],
+    const spE = S.species ? `${S.species} only (species-stratified, post hoc)` : "all species pooled";
+    const lines = [hdr.join("\t")].concat(rows.map((x) => [S.cur.e[0], spE, VE("tissue", x.u.t), VE("bt", x.u.b), VE("mode", x.u.m), VE("layer", x.u.l), VE("cls_badge", String(x.c)), DE[dirOf(x)],
       x.g.toFixed(2), x.lo.toFixed(2), x.hi.toFixed(2), x.plo.toFixed(2), x.phi.toFixed(2), x.p.toPrecision(2), x.k, x.i2, x.nsp, x.nsn, repE(x.mo, x.c), repE(x.ra, x.c), x.u.st || ""].join("\t")));
     const text = lines.join("\n"), btn = $("copytsv");
     try { await navigator.clipboard.writeText(text); btn.textContent = t("tbl_copied"); setTimeout(() => (btn.textContent = t("tbl_copy")), 1600); }
@@ -746,8 +915,13 @@ footer .wrap { padding-block: 16px 28px; display: flex; flex-wrap: wrap; gap: 6p
   }
   function renderResult() {
     const { e, d } = S.cur;
-    const all = d.r.map(R);
+    const all = rowsFor(d);
     const box = $("result"); box.replaceChildren();
+    if (S.species) {
+      const spn = V("species", S.species);
+      box.append(el("div", { class: "msg spnote" }, el("span", {}, t("sp_note", { species: spn })),
+        el("button", { type: "button", onclick: () => pickSpecies(""), text: t("sp_show_all") })));
+    }
     const isGene = !e[1].includes(":");
     const links = el("span", { class: "links" });
     if (isGene) links.append(el("a", { href: `https://www.ncbi.nlm.nih.gov/gene/${e[1]}`, target: "_blank", rel: "noopener", text: `NCBI Gene ${e[1]}` }));
@@ -758,6 +932,161 @@ footer .wrap { padding-block: 16px 28px; display: flex; flex-wrap: wrap; gap: 6p
       el("span", { style: "display:flex;gap:6px;flex-wrap:wrap" }, ...layersIn)));
     box.append(el("div", { class: "res-grid" }, verdict(all), geneGrid(all)));
     box.append(table(visibleRows()));
+  }
+
+  // ---------- visual browser: species cards, body map, tissue list, selection summary ----------
+  const tissueStudies = (tt, sp) => (sp ? ((S.meta.tsp || {})[tt] || {})[sp] || 0 : (S.meta.tsp_all || {})[tt] || 0);
+  const unitsFor = (tt, sp) => S.units.filter((u) => u.v === "L2" && u.t === tt && (sp ? (u.sp === sp || isPure(u, sp)) : !u.sp))
+    .sort((a, b) => LS.indexOf(a.l) - LS.indexOf(b.l) || bOrder[a.b] - bOrder[b.b]);
+  const nGraded = (u) => u.g[0] + u.g[1] + u.g[2];
+  const pic = (key, cls) => el("span", { class: cls || "ti" }, el("img", { src: PIC(key), alt: "", decoding: "async", draggable: "false" }));
+  function orgTip(tt) {
+    const n = tissueStudies(tt, S.species), sp = S.species ? V("species", S.species) : "";
+    let h = `<b>${esc(V("tissue", tt))}</b><br>`;
+    if (!n) return h + esc(S.species ? t("org_none_sp", { species: sp }) : t("org_none"));
+    h += esc(tp("vis_studies", n, { n: ni(n) }));
+    if (!unitsFor(tt, S.species).length) h += ` · ${esc(t("org_few"))}`;
+    return h;
+  }
+  function availability(tt) {
+    const n = tissueStudies(tt, S.species);
+    return !n ? "na" : unitsFor(tt, S.species).length ? "ok" : "few";
+  }
+  function pickSpecies(sp) {
+    S.species = sp; S.visUnit = null;
+    renderVis();
+    if (S.cur) renderResult();
+  }
+  function pickTissue(tt) {
+    S.tissue = S.tissue === tt ? "" : tt; S.visUnit = null;
+    const ts = $("tissue");
+    if (S.tissue && ![...ts.options].some((o) => o.value === S.tissue)) ts.append(el("option", { value: S.tissue, text: V("tissue", S.tissue) }));
+    ts.value = S.tissue;
+    renderVis();
+    if (S.cur) renderResult();
+  }
+  // linked highlighting between the tissue list and the figure
+  function highlight(tt, on) {
+    const g = $("bodymap").querySelector(`.org[data-t="${tt}"]`);
+    if (g) {
+      g.classList.toggle("hl", on);
+      if (on && !g.classList.contains("na")) g.parentNode.append(g);   // bring it in front of overlapping organs
+    }
+    const b = $("tiles").querySelector(`.tile[data-t="${tt}"]`);
+    if (b) b.classList.toggle("hl", on);
+  }
+  function renderVis() {
+    if (!S.meta.tsp) return;
+    // species cards
+    const spp = $("spp"); spp.replaceChildren(); spp.setAttribute("aria-label", t("lbl_species"));
+    for (const sp of SPECIES) {
+      const n = (S.meta.sp_n || {})[sp] || 0;
+      const icos = el("span", { class: `icos${sp ? "" : " all"}`, "aria-hidden": "true" },
+        ...(sp ? [sp] : ["human", "mouse", "rat"]).map((k) => el("img", { src: PIC(`sp_${k}`), alt: "", class: k, decoding: "async", draggable: "false" })));
+      spp.append(el("button", { type: "button", class: "sp", "aria-pressed": S.species === sp ? "true" : "false", onclick: () => pickSpecies(sp) },
+        icos, el("span", { class: "nm", text: sp ? V("sp_cap", sp) : t("sp_all") }), el("span", { class: "ct", text: tp("vis_studies", n, { n: ni(n) }) })));
+    }
+    renderTiles();
+    renderBody();
+    renderVsum();
+  }
+  function renderTiles() {
+    const box = $("tiles"); box.replaceChildren();
+    const sp = S.species, all = S.meta.tsp_all || {};
+    const keys = Object.keys(all).sort((a, b) => tissueStudies(b, sp) - tissueStudies(a, sp) || all[b] - all[a]);
+    for (const tt of keys) {
+      const av = availability(tt), n = tissueStudies(tt, sp);
+      const b = el("button", { type: "button", class: `tile ${av}`, "data-t": tt, disabled: av === "na", "aria-pressed": S.tissue === tt ? "true" : "false",
+        onclick: () => pickTissue(tt) },
+        pic(tt), el("span", { class: "tn", text: V("tissue", tt) }),
+        el("span", { class: "tc", text: n ? tp("vis_studies", n, { n: ni(n) }) : sp ? t("org_none_sp", { species: V("species", sp) }) : t("org_none") }));
+      b.addEventListener("mouseenter", () => highlight(tt, true)); b.addEventListener("mouseleave", () => highlight(tt, false));
+      b.addEventListener("focus", () => highlight(tt, true)); b.addEventListener("blur", () => highlight(tt, false));
+      attachTip(b, () => orgTip(tt));
+      box.append(b);
+    }
+  }
+  let bodyTurn = 0;
+  async function renderBody() {
+    const kind = S.species === "mouse" || S.species === "rat" ? S.species : "human";
+    const turn = ++bodyTurn, bm = $("bodymap");
+    let text;
+    try { text = await BODY.load(kind); } catch (e) { if (turn === bodyTurn) bm.replaceChildren(); return; }
+    if (turn !== bodyTurn) return;
+    bm.innerHTML = text;
+    const svg = bm.querySelector("svg");
+    if (!svg) return;
+    svg.setAttribute("role", "group"); svg.setAttribute("focusable", "false");
+    svg.setAttribute("aria-label", t("vis_body_label", { species: S.species ? V("sp_cap", S.species) : t("sp_all") }));
+    let selg = null;
+    for (const g of svg.querySelectorAll(".org")) {
+      const tt = g.dataset.t, av = availability(tt), n = tissueStudies(tt, S.species);
+      g.classList.add(av);
+      g.setAttribute("aria-label", `${V("tissue", tt)}: ${n ? tp("vis_studies", n, { n: ni(n) }) : t("org_none")}`);
+      if (av === "na") g.setAttribute("aria-disabled", "true");
+      else {
+        g.setAttribute("role", "button"); g.setAttribute("tabindex", "0"); g.setAttribute("aria-pressed", S.tissue === tt ? "true" : "false");
+        g.addEventListener("click", () => pickTissue(tt));
+        g.addEventListener("keydown", (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); pickTissue(tt); } });
+        g.addEventListener("mouseenter", () => { const b = $("tiles").querySelector(`.tile[data-t="${tt}"]`); if (b) b.classList.add("hl"); });
+        g.addEventListener("mouseleave", () => { const b = $("tiles").querySelector(`.tile[data-t="${tt}"]`); if (b) b.classList.remove("hl"); });
+      }
+      if (S.tissue === tt) { g.classList.add("sel"); selg = g; }
+      attachTip(g, () => orgTip(tt));
+    }
+    if (selg) { svg.classList.add("has-sel"); svg.append(selg); }
+  }
+  function renderVsum() {
+    const box = $("vsum"); box.replaceChildren();
+    if (!S.tissue) { box.hidden = true; return; }
+    box.hidden = false;
+    const sp = S.species, spCap = sp ? V("sp_cap", sp) : t("sp_all"), spn = sp ? V("species", sp) : "";
+    const tt = S.tissue, n = tissueStudies(tt, sp), us = unitsFor(tt, sp);
+    let sub = tp("vis_tissue_k", n, { n: ni(n) });
+    if (!sp && S.meta.tsp[tt]) sub += ` (${["human", "mouse", "rat"].filter((s) => S.meta.tsp[tt][s]).map((s) => `${V("species", s)} ${ni(S.meta.tsp[tt][s])}`).join(" · ")})`;
+    const left = el("div", { class: "vcol" }, el("div", { class: "vhead" }, pic(tt), el("div", {}, el("p", { class: "eyebrow", text: spCap }), el("h3", { text: V("tissue", tt) }))),
+      el("p", { class: "sub", text: sub }));
+    const right = el("div", { class: "vcol" });
+    box.append(left, right);
+    if (!n) left.append(el("p", { class: "sub", text: t("vis_none_sp", { species: spn }) }));
+    else if (!us.length) left.append(el("p", { class: "sub", text: sp ? t("vis_few_sp", { species: spn }) : t("vis_few") }));
+    else {
+      left.append(el("p", { class: "lbl", text: sp ? t("vis_units_sp", { species: spn }) : t("vis_units") }));
+      const sel = us.find((u) => u.id === S.visUnit) || [...us].sort((a, b) => nGraded(b) - nGraded(a) || b.k - a.k)[0];
+      const list = el("div", { class: "ulist" });
+      for (const u of us) {
+        list.append(el("button", { type: "button", class: "urow", "aria-pressed": u === sel ? "true" : "false", onclick: () => { S.visUnit = u.id; renderVsum(); } },
+          el("span", { text: `${V("bt", u.b)} · ${V("layer", u.l)}` }), el("span", { class: "u2" }, num(`k = ${ni(u.k)}`)),
+          el("span", { class: "gr", text: t("vis_graded", { n: ni(nGraded(u)) }) })));
+      }
+      left.append(list);
+      const top = S.top[sel.id] || [];
+      right.append(el("p", { class: "lbl", text: `${V("bt", sel.b)} · ${V("layer", sel.l)}` }));
+      if (top.length) {
+        const chips = el("div", { class: "chips" }, el("span", { text: sel.l === "metabolome" || sel.l === "miRNA" ? t("d_top_feats") : t("d_top_genes") }));
+        for (const [key, name, cls, g100] of top.slice(0, 16)) {
+          chips.append(el("button", { type: "button", class: "chip", dir: "ltr", title: `${clsLabel(cls)}, g = ${nf(g100 / 100)}`,
+            onclick: () => { q.value = name; lookup(key); $("result").scrollIntoView({ block: "start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); },
+            text: `${name} ${g100 > 0 ? "↑" : "↓"}` }));
+        }
+        right.append(chips);
+      } else right.append(el("p", { class: "sub", text: t("d_nograded") }));
+    }
+    (right.childNodes.length ? right : left).append(el("button", { type: "button", class: "vclear", onclick: () => pickTissue(tt), text: t("vis_clear") }));
+  }
+  function renderCredit() {
+    const box = $("artcredit"); box.replaceChildren();
+    const L = {
+      ebi: ["EMBL-EBI Expression Atlas anatomograms", "https://github.com/ebi-gene-expression-group/anatomogram"],
+      smart: ["Servier Medical Art", "https://smart.servier.com/"], togo: ["DBCLS TogoTV", "https://togotv.dbcls.jp/en/pics.html"],
+      by4: ["CC BY 4.0", "https://creativecommons.org/licenses/by/4.0/"], by3: ["CC BY 3.0", "https://creativecommons.org/licenses/by/3.0/"],
+      details: [t("art_details"), `${ART}CREDITS.txt`],
+    };
+    for (const part of String(t("art_credit")).split(/(\{\w+\})/)) {
+      const m = part.match(/^\{(\w+)\}$/);
+      if (m && L[m[1]]) box.append(el("bdi", {}, el("a", { href: L[m[1]][1], target: "_blank", rel: "noopener", text: L[m[1]][0] })));
+      else if (part) box.append(part);
+    }
   }
 
   // ---------- static texts, facts, ribbon, selects ----------
@@ -784,7 +1113,8 @@ footer .wrap { padding-block: 16px 28px; display: flex; flex-wrap: wrap; gap: 6p
     const ts = $("tissue"), ls = $("layer");
     const tv = ts.value, lv = ls.value;
     ts.replaceChildren(el("option", { value: "", text: t("all_tissues") }));
-    for (const tt of S.meta.tissue_order) if (S.units.some((u) => u.t === tt)) ts.append(el("option", { value: tt, text: V("tissue", tt) }));
+    const tlist = [...S.meta.tissue_order, ...Object.keys(S.meta.tsp_all || {}).filter((tt) => !S.meta.tissue_order.includes(tt))];
+    for (const tt of tlist) if (S.units.some((u) => u.t === tt) || (S.meta.tsp_all || {})[tt]) ts.append(el("option", { value: tt, text: V("tissue", tt) }));
     ls.replaceChildren(el("option", { value: "", text: t("all_layers") }));
     for (const l of LS) if (S.units.some((u) => u.l === l)) ls.append(el("option", { value: l, text: V("layer", l) }));
     ts.value = tv; ls.value = lv;
@@ -900,7 +1230,7 @@ footer .wrap { padding-block: 16px 28px; display: flex; flex-wrap: wrap; gap: 6p
     try { localStorage.setItem("exgrade-view", v); } catch (e) { /* storage unavailable */ }
   }
   document.querySelectorAll("nav.tabs button").forEach((b) => b.addEventListener("click", () => show(b.dataset.v)));
-  $("tissue").addEventListener("change", (ev) => { S.tissue = ev.target.value; if (S.cur) renderResult(); });
+  $("tissue").addEventListener("change", (ev) => { S.tissue = ev.target.value; S.visUnit = null; renderVis(); if (S.cur) renderResult(); });
   $("layer").addEventListener("change", (ev) => { S.layer = ev.target.value; if (S.cur) renderResult(); });
   $("bymode").addEventListener("change", (ev) => { S.bymode = ev.target.checked; if (S.cur) renderResult(); });
 
@@ -931,7 +1261,7 @@ footer .wrap { padding-block: 16px 28px; display: flex; flex-wrap: wrap; gap: 6p
     loadFont(L.font);
     $("lang").value = L.code;
     if (persist) { try { localStorage.setItem("exgrade-lang", L.code); } catch (e) { /* storage unavailable */ } }
-    applyStatic(); renderFacts(); renderRibbon(); fillSelects(); renderMap(); renderText();
+    applyStatic(); renderCredit(); renderFacts(); renderRibbon(); fillSelects(); renderMap(); renderText(); renderVis();
     if (S.cur) renderResult();
     if (S.mapSel) mapDetail(S.mapSel, false);
   }
