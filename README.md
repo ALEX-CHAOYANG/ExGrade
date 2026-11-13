@@ -7,6 +7,7 @@ ExGrade is the interactive query website of the dataset described in Li C. & Su 
 ## What the site shows
 
 - **Look up a gene**: for any gene, protein, miRNA or metabolite measured in at least three independent studies, the direction of change (up, down, no change, no detectable change or conflicting), the evidence class (I–IV, inconsistent, no detectable effect), the pooled effect size (Hedges' g) with 95% confidence and prediction intervals, heterogeneity, and replication in two held-out consortium atlases (MoTrPAC rat, Maier et al. mouse).
+- **Browse by grade**: for any tissue × paradigm × layer unit (pooled, or one species), the complete list of features graded class I–III, which can be filtered by class, direction, number of studies, prediction interval and replication in the held-out atlases, sorted by any column and copied as a table.
 - **Evidence map**: the evidence status of every tissue × paradigm × layer combination that has been studied, with contributing studies and the strongest graded features.
 - **Reporting checklist**: the ExGrade minimum reporting checklist for exercise omics, with current reporting rates in GEO.
 - **Browse by species and organ**: body maps of human, mouse and rat; selecting an organ filters the results, and selecting a species shows the exploratory species-stratified grades.
@@ -24,6 +25,7 @@ The interface is available in English, 简体中文, 繁體中文, 日本語, �
 | `data/aliases.json` | Gene synonyms, mouse and rat symbols, Ensembl IDs |
 | `data/i18n.json` | Interface text in 11 languages |
 | `data/s/NNN.json` | Per-feature results, sharded so that each lookup loads one file |
+| `data/g/NNN.json` | Every class I–III feature of analysis unit NNN, taken from the per-feature results (`data/g/index.json`: counts per unit) |
 | `assets/` | Body maps and organ pictures; sources and licences in `assets/CREDITS.txt` |
 
 ## Running locally

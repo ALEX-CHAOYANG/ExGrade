@@ -82,7 +82,7 @@ nav.tabs button:hover { color: var(--ink); }
 
 main .wrap { padding-block: 22px 40px; display: grid; gap: 18px; }
    [hidden] { display: none !important; }
-main .wrap > section, #v-lookup > *, #v-map > *, #result > *, .res-grid > *, .search > * { min-width: 0; }
+main .wrap > section, #v-lookup > *, #v-browse > *, #b-result > *, .brow > *, #v-map > *, #result > *, .res-grid > *, .search > * { min-width: 0; }
 .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); }
 .eyebrow { font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0; }
 
@@ -182,6 +182,26 @@ svg.fb { display: block; }
 .d-conf { color: var(--bad); font-weight: 600; }
 .vlink { font: inherit; font-size: 12.5px; background: none; border: 0; padding: 0; color: var(--accent); text-decoration: underline; cursor: pointer; justify-self: start; }
 .vdl dt .ar { display: inline-block; min-width: 1.3em; font-family: var(--ff-num); }
+
+/* browse by grade */
+.brow { display: grid; grid-template-columns: minmax(150px, 220px) minmax(0, 1fr); gap: 10px; align-items: end; }
+.bfil { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; }
+.bfil label { font-size: 13.5px; color: var(--ink2); display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.bfil label.off { opacity: 0.5; cursor: default; }
+.bfil select { padding-block: 6px; font-size: 13.5px; }
+.bfil input[type="search"] { font: inherit; font-size: 14px; padding: 6px 10px; border: 1.5px solid var(--line2); border-radius: var(--r); background: var(--raise); color: var(--ink); width: 190px; max-width: 100%; }
+.btip { margin: 0; font-size: 13px; color: var(--ink2); max-width: 110ch; padding: 10px 12px; background: var(--raise); border: 1px solid var(--line); border-radius: var(--r); }
+.bhead { display: grid; gap: 8px; padding: 16px 16px 0; }
+.bhead h3 { margin: 0; font-size: 18px; font-weight: 700; }
+.bhead .tbl-head { padding: 0; }
+.sortb { font: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; white-space: nowrap; }
+.sortb:hover, th[aria-sort] .sortb { color: var(--ink); }
+.sortb .ar { display: inline-block; min-width: 1em; text-align: center; }
+.flink { font: inherit; font-weight: 600; background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; text-align: start; overflow-wrap: anywhere; }
+.flink:hover { text-decoration: underline; }
+#b-result td:first-child { min-width: 0; color: var(--muted); }
+.bmore { display: flex; justify-content: center; padding: 10px 16px 16px; }
+.unit .vlink { font-size: 13px; }
 
 /* map */
 .mapbox { padding: 16px; display: grid; gap: 12px; }
@@ -322,6 +342,7 @@ svg.anat .org.sel { filter: drop-shadow(0 0 1.2px var(--accent)) drop-shadow(0 0
   .vsum { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 640px) {
+  .brow { grid-template-columns: minmax(0, 1fr); }
   .vis-body { grid-template-columns: minmax(0, 1fr); }
   .spp { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
   .spp .sp { padding: 4px 3px 6px; } .spp .sp .icos { height: 40px; padding: 4px 3px; } .spp .sp .icos img { height: 31px; }
@@ -389,6 +410,7 @@ footer .wrap { padding-block: 16px 28px; display: flex; flex-wrap: wrap; gap: 6p
     <p class="citebar"><span data-i18n="contact_lead">Found an error or have a question? Please contact Chaoyang Li:</span> <a href="mailto:lichaoyang@bsu.edu.cn">lichaoyang@bsu.edu.cn</a></p>
     <nav class="tabs" role="tablist" aria-label="Views">
       <button role="tab" id="t-lookup" aria-selected="true" aria-controls="v-lookup" data-v="lookup" data-i18n="tab_lookup">Look up a gene</button>
+      <button role="tab" id="t-browse" aria-selected="false" aria-controls="v-browse" data-v="browse" data-i18n="tab_browse">Browse by grade</button>
       <button role="tab" id="t-map" aria-selected="false" aria-controls="v-map" data-v="map" data-i18n="tab_map">Evidence map</button>
       <button role="tab" id="t-checklist" aria-selected="false" aria-controls="v-checklist" data-v="checklist" data-i18n="tab_checklist">Reporting checklist</button>
       <button role="tab" id="t-about" aria-selected="false" aria-controls="v-about" data-v="about" data-i18n="tab_about">How grades work</button>
@@ -438,6 +460,32 @@ footer .wrap { padding-block: 16px 28px; display: flex; flex-wrap: wrap; gap: 6p
         <div class="vsum" id="vsum" aria-live="polite" hidden></div>
       </div>
       <div id="result" style="display:grid;gap:18px"><div class="panel loading">Loading the ExGrade atlas…</div></div>
+    </section>
+
+    <section id="v-browse" role="tabpanel" aria-labelledby="t-browse" hidden style="gap:18px">
+      <div class="panel search">
+        <div>
+          <p class="eyebrow" data-i18n="br_eyebrow">Graded features</p>
+          <h2 style="font-family:var(--ff-display);font-size:24px;margin:2px 0 6px" data-i18n="br_title">Which molecules respond most consistently?</h2>
+          <p style="margin:0;color:var(--ink2);max-width:80ch" data-i18n="br_intro"></p>
+        </div>
+        <div class="brow">
+          <div class="field"><label for="b-sp" data-i18n="lbl_species">Species</label><select id="b-sp"></select></div>
+          <div class="field"><label for="b-unit" data-i18n="br_unit">Tissue · paradigm · layer</label><select id="b-unit"></select></div>
+        </div>
+        <div class="bfil">
+          <label><input type="checkbox" id="b-c1" checked> <span class="badge k1">I</span></label>
+          <label><input type="checkbox" id="b-c2" checked> <span class="badge k2">II</span></label>
+          <label><input type="checkbox" id="b-c3" checked> <span class="badge k3">III</span></label>
+          <select id="b-dir" data-i18n-al="th_dir"></select>
+          <select id="b-k" data-i18n-al="th_k"></select>
+          <label id="b-rep-l"><input type="checkbox" id="b-rep"> <span data-i18n="br_rep">Only replicated in a held-out atlas (✓)</span></label>
+          <label><input type="checkbox" id="b-pi"> <span data-i18n="br_pi">Only prediction intervals that exclude zero</span></label>
+          <input type="search" id="b-find" dir="auto" spellcheck="false" autocomplete="off" data-i18n-ph="br_find" data-i18n-al="br_find" placeholder="Filter by name">
+        </div>
+        <p class="btip" data-i18n="br_tip"></p>
+      </div>
+      <div id="b-result" style="display:grid;gap:18px"></div>
     </section>
 
     <section id="v-map" role="tabpanel" aria-labelledby="t-map" hidden style="gap:18px">
@@ -1098,6 +1146,7 @@ footer .wrap { padding-block: 16px 28px; display: flex; flex-wrap: wrap; gap: 6p
   function applyStatic() {
     document.querySelectorAll("[data-i18n]").forEach((n) => { n.textContent = t(n.dataset.i18n); });
     document.querySelectorAll("[data-i18n-ph]").forEach((n) => { n.placeholder = t(n.dataset.i18nPh); });
+    document.querySelectorAll("[data-i18n-al]").forEach((n) => { n.setAttribute("aria-label", t(n.dataset.i18nAl)); });
     $("lang").setAttribute("aria-label", t("lang_label"));
   }
   function renderFacts() {
@@ -1192,6 +1241,7 @@ footer .wrap { padding-block: 16px 28px; display: flex; flex-wrap: wrap; gap: 6p
           }
           unit.append(chips);
         } else if (gr === 0) unit.append(el("p", { style: "margin:0;color:var(--ink2)", text: t("d_nograded") }));
+        if (gr > 0) unit.append(el("button", { type: "button", class: "vlink", onclick: () => openBrowse(i), text: t("br_open", { n: ni(gr) }) }));
         unit.append(el("details", {}, el("summary", { text: t("d_contrib", { k: ni(u.s.length) }) }), studyLinks(u)));
         box.append(unit);
       }
@@ -1224,14 +1274,184 @@ footer .wrap { padding-block: 16px 28px; display: flex; flex-wrap: wrap; gap: 6p
       el("h3", { text: ab.h_cite }), el("p", { class: "cite", text: S.I18N.cite }));
   }
 
+  // ---------- browse by grade: every class I-III feature of one analysis unit (data/g/NNN.json, built by code/44_portal_browse.py) ----------
+  const B = { sp: "", unit: null, cls: { 1: true, 2: true, 3: true }, dir: "", rep: false, pi: false, kmin: 3, find: "", sort: "", asc: false, limit: 200,
+    counts: null, files: new Map(), rows: new Map(), seq: 0 };
+  const BSTEP = 200;
+  const bUnits = () => S.units.filter((u) => B.counts && B.counts[u.id] && (B.sp ? (u.sp === B.sp || isPure(u, B.sp)) : !u.sp))
+    .sort((a, b) => tOrder(a.t) - tOrder(b.t) || LS.indexOf(a.l) - LS.indexOf(b.l) || bOrder[a.b] - bOrder[b.b] ||
+      (a.v === "L2" ? 0 : 1) - (b.v === "L2" ? 0 : 1) || mOrder[a.m] - mOrder[b.m]);
+  const bUnitName = (u) => `${V("tissue", u.t)} · ${V("bt", u.b)} · ${V("mode", u.m)} · ${V("layer", u.l)}`;
+  function fillBrowse() {
+    const ss = $("b-sp"), us = $("b-unit"), ds = $("b-dir");
+    ss.replaceChildren(...SPECIES.map((sp) => el("option", { value: sp, text: sp ? V("sp_cap", sp) : t("sp_all") })));
+    ss.value = B.sp;
+    ds.replaceChildren(el("option", { value: "", text: t("br_dir_all") }), el("option", { value: "up", text: `↑ ${t("dir_up")}` }), el("option", { value: "down", text: `↓ ${t("dir_down")}` }));
+    ds.value = B.dir;
+    $("b-k").replaceChildren(...[3, 10, 20, 50, 100].map((n) => el("option", { value: n, text: `${t("th_k")} ≥ ${ni(n)}` })));
+    $("b-k").value = String(B.kmin);
+    us.replaceChildren();
+    const list = bUnits();
+    let grp = null, gt = null;
+    for (const u of list) {
+      if (u.t !== gt) { gt = u.t; grp = el("optgroup", { label: V("tissue", u.t) }); us.append(grp); }
+      const c = B.counts[u.id];
+      grp.append(el("option", { value: u.id, text: `${V("bt", u.b)} · ${V("mode", u.m)} · ${V("layer", u.l)} — I ${ni(c[0])} · II ${ni(c[1])} · III ${ni(c[2])}` }));
+    }
+    if (!list.some((u) => u.id === B.unit)) {
+      // keep the same tissue, paradigm, mode and layer when the species changes; otherwise the pooled unit with the most studies
+      const prev = B.unit != null ? S.units[B.unit] : null;
+      const same = prev && list.find((u) => u.t === prev.t && u.b === prev.b && u.m === prev.m && u.l === prev.l && u.v === prev.v);
+      B.unit = same ? same.id : list.length ? list.reduce((m, u) => (u.v === "L2" && u.k > m.k ? u : m), list[0]).id : null;
+    }
+    us.disabled = !list.length;
+    if (B.unit != null) us.value = String(B.unit);
+  }
+  function bFile(id) {
+    if (!B.files.has(id)) B.files.set(id, getJSON(`data/g/${String(id).padStart(3, "0")}.json`).catch((e) => { B.files.delete(id); throw e; }));
+    return B.files.get(id);
+  }
+  async function bRows(id) {
+    if (!B.rows.has(id)) {
+      const raw = await bFile(id);
+      B.rows.set(id, raw.map((r, i) => {
+        const x = R([id, ...r.slice(1)]), e = S.byKey.get(r[0]);
+        x.key = r[0]; x.name = e ? e[0] : r[0].replace(/^[mx]:/, ""); x.up = x.name.toUpperCase(); x.ord = i;
+        return x;
+      }));
+    }
+    return B.rows.get(id);
+  }
+  const repRank = (c) => [2, 0, 1, 3][c];   // replicated, not significant, no atlas data, opposite
+  const BSORT = {
+    name: [(a, b) => a.up.localeCompare(b.up), true], cls: [(a, b) => a.c - b.c, true], g: [(a, b) => Math.abs(a.g) - Math.abs(b.g), false],
+    pi: [(a, b) => (a.g > 0 ? a.plo : -a.phi) - (b.g > 0 ? b.plo : -b.phi), false], k: [(a, b) => a.k - b.k, false], i2: [(a, b) => a.i2 - b.i2, true],
+    sig: [(a, b) => (a.g > 0 ? a.nsp : a.nsn) - (b.g > 0 ? b.nsp : b.nsn), false], mo: [(a, b) => repRank(a.mo) - repRank(b.mo), true], ra: [(a, b) => repRank(a.ra) - repRank(b.ra), true],
+  };
+  function bView(all, hasExt) {
+    const f = B.find.trim().toUpperCase();
+    const xs = all.filter((x) => B.cls[x.c] && (!B.dir || (B.dir === "up" ? x.g > 0 : x.g < 0)) && (!(B.rep && hasExt) || x.mo === 1 || x.ra === 1) &&
+      (!B.pi || x.plo > 0 || x.phi < 0) && x.k >= B.kmin && (!f || x.up.includes(f)));
+    if (B.sort && BSORT[B.sort]) { const cmp = BSORT[B.sort][0], d = B.asc ? 1 : -1; xs.sort((a, b) => d * cmp(a, b) || a.ord - b.ord); }
+    return xs;
+  }
+  function bSortBy(key) {
+    if (B.sort === key) B.asc = !B.asc; else { B.sort = key; B.asc = BSORT[key][1]; }
+    B.limit = BSTEP; renderBrowse();
+  }
+  async function bCopy(u, xs, btn) {
+    const hdr = ["feature", "id", "species", "tissue", "paradigm", "mode", "layer", "class", "direction", "g", "ci_low", "ci_high", "pi_low", "pi_high", "p", "k", "I2", "sig_up", "sig_down", "mouse_atlas", "rat_atlas"];
+    const repE = (code) => ["", "replicated", "not significant", "opposite"][code];
+    const spE = u.sp ? `${u.sp} only (species-stratified, post hoc)` : B.sp ? `${B.sp} (every study in this unit)` : "all species pooled";
+    const text = [hdr.join("\t")].concat(xs.map((x) => [x.name, x.key, spE, VE("tissue", u.t), VE("bt", u.b), VE("mode", u.m), VE("layer", u.l), VE("cls_badge", String(x.c)), DE[dirOf(x)],
+      x.g.toFixed(2), x.lo.toFixed(2), x.hi.toFixed(2), x.plo.toFixed(2), x.phi.toFixed(2), x.p.toPrecision(2), x.k, x.i2, x.nsp, x.nsn, repE(x.mo), repE(x.ra)].join("\t"))).join("\n");
+    try { await navigator.clipboard.writeText(text); btn.textContent = t("tbl_copied"); setTimeout(() => (btn.textContent = t("tbl_copy")), 1600); }
+    catch (e) {
+      const ta = el("textarea", { style: "width:100%;height:140px;font-family:var(--ff-num);font-size:12px", dir: "ltr", "aria-label": "TSV" });
+      ta.value = text; btn.closest(".panel").append(ta); ta.focus(); ta.select(); btn.textContent = t("tbl_copy_fb");
+    }
+  }
+  function openFeature(u, x) {
+    S.species = u.sp || (B.sp && isPure(u, B.sp) ? B.sp : "");
+    S.tissue = u.t; S.visUnit = null;
+    const ts = $("tissue");
+    if (![...ts.options].some((o) => o.value === u.t)) ts.append(el("option", { value: u.t, text: V("tissue", u.t) }));
+    ts.value = u.t;
+    renderVis(); show("lookup"); q.value = x.name; lookup(x.key);
+    scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  }
+  function openBrowse(id) {
+    const u = S.units[id];
+    B.sp = u.sp || ""; B.unit = id; B.limit = BSTEP;
+    show("browse");
+    scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  }
+  async function renderBrowse() {
+    const box = $("b-result"), seq = ++B.seq;
+    if (!B.counts) {
+      box.replaceChildren(el("div", { class: "panel loading", text: t("loading_atlas") }));
+      try { B.counts = await getJSON("data/g/index.json"); } catch (e) { if (seq === B.seq) box.replaceChildren(el("div", { class: "msg", text: t("loadfail") })); return; }
+      if (seq !== B.seq) return;
+    }
+    fillBrowse();
+    if (B.unit == null) { $("b-rep").disabled = true; box.replaceChildren(el("div", { class: "msg", text: t("br_nounit") })); return; }
+    const u = S.units[B.unit], hasExt = !!(u.ext && (u.ext[0] || u.ext[1]));
+    $("b-rep").disabled = !hasExt; $("b-rep-l").classList.toggle("off", !hasExt);
+    let all = B.rows.get(u.id);
+    if (!all) {
+      box.replaceChildren(el("div", { class: "panel loading", text: t("loading", { name: bUnitName(u) }) }));
+      try { all = await bRows(u.id); } catch (e) { if (seq === B.seq) box.replaceChildren(el("div", { class: "msg", text: t("loadfail") })); return; }
+      if (seq !== B.seq) return;
+    }
+    const xs = bView(all, hasExt), shown = xs.slice(0, B.limit);
+    const kids = [];
+    if (u.sp) kids.push(el("div", { class: "msg", text: t("sp_note", { species: V("species", u.sp) }) }));
+    const panel = el("div", { class: "panel" });
+    const kv = (label, val) => el("span", {}, `${label} `, el("b", {}, num(val)));
+    const cnt = (c) => xs.reduce((a, x) => a + (x.c === c ? 1 : 0), 0);
+    const copy = el("button", { type: "button", class: "btn", text: t("tbl_copy") });
+    copy.addEventListener("click", () => bCopy(u, xs, copy));
+    panel.append(el("div", { class: "bhead" },
+      el("div", {}, el("p", { class: "eyebrow", text: `${u.sp ? V("sp_cap", u.sp) : t("sp_all")} · ${V("layer", u.l)}` }), el("h3", { text: `${V("tissue", u.t)} · ${V("bt", u.b)} · ${V("mode", u.m)}` })),
+      el("div", { class: "kv" }, kv(t("d_k"), ni(u.k)), kv(t("d_n"), ni(u.n)), u.st ? el("span", {}, `${t("d_status")} `, el("b", { text: V("st", u.st)[0] })) : null),
+      el("div", { class: "tbl-head" },
+        el("span", { style: "font-size:13.5px;color:var(--ink2)" }, t("br_count", { n: ni(xs.length), m: ni(all.length) }), " · ",
+          ...[1, 2, 3].flatMap((c) => [el("span", { class: `badge k${c}`, text: V("cls_badge", String(c)) }), " ", num(ni(cnt(c))), " "]),
+          "· ↑ ", num(ni(xs.filter((x) => x.g > 0).length)), " ↓ ", num(ni(xs.filter((x) => x.g < 0).length))),
+        el("span", { class: "sp" }), copy)));
+    if (!xs.length) panel.append(el("p", { class: "note", text: t("br_none") }));
+    else {
+      const M = Math.min(5, Math.max(1, ...shown.map((x) => Math.max(Math.abs(x.lo), Math.abs(x.hi)))));
+      const tb = el("tbody");
+      shown.forEach((x, i) => {
+        const [mc, mt, mtt] = repShort(x.mo, x.c), [rc, rt, rtt] = repShort(x.ra, x.c);
+        tb.append(el("tr", {},
+          el("td", { class: "n" }, num(ni(i + 1))),
+          el("td", {}, el("button", { type: "button", class: "flink", dir: "ltr", onclick: () => openFeature(u, x), text: x.name })),
+          el("td", {}, el("span", { class: `badge k${x.c}`, text: V("cls_badge", String(x.c)) })),
+          el("td", { class: `dir d-${dirOf(x)}`, text: `${DG[dirOf(x)]} ${t("dir_" + dirOf(x))}` }),
+          el("td", { class: "n" }, num(nf(x.g)), " ", el("bdi", { class: "n ci", dir: "ltr", text: ci(x.lo, x.hi) })),
+          el("td", {}, forest(x, M)),
+          el("td", { class: "n" }, num(ci(x.plo, x.phi, 1))),
+          el("td", { class: "n" }, num(ni(x.k))),
+          el("td", { class: "n" }, num(pct(x.i2))),
+          el("td", { class: "n" }, num(`↑${ni(x.nsp)} ↓${ni(x.nsn)}`)),
+          hasExt ? el("td", { class: `rep ${mc}`, title: mtt, text: mt }) : null,
+          hasExt ? el("td", { class: `rep ${rc}`, title: rtt, text: rt }) : null));
+      });
+      const heads = [[null, "#", "n"], ["name", t("br_feat")], ["cls", t("th_class")], [null, t("th_dir")], ["g", t("th_g"), "n"], [null, ""], ["pi", t("th_pi"), "n"], ["k", t("th_k"), "n"],
+        ["i2", t("th_i2"), "n"], ["sig", t("th_sig"), "n"]].concat(hasExt ? [["mo", t("th_mouse")], ["ra", t("th_rat")]] : []);
+      const th = ([key, label, c]) => (!key ? el("th", { class: c || null, text: label })
+        : el("th", { class: c || null, "aria-sort": B.sort === key ? (B.asc ? "ascending" : "descending") : null },
+          el("button", { type: "button", class: "sortb", onclick: () => bSortBy(key) }, label, el("span", { class: "ar", "aria-hidden": "true", text: B.sort === key ? (B.asc ? "▲" : "▼") : "" }))));
+      panel.append(el("div", { class: "tscroll" }, el("table", {}, el("thead", {}, el("tr", {}, ...heads.map(th))), tb)));
+      if (xs.length > shown.length) {
+        panel.append(el("div", { class: "bmore" }, el("button", { type: "button", class: "btn", onclick: () => { B.limit += BSTEP; renderBrowse(); },
+          text: t("br_more", { n: ni(Math.min(BSTEP, xs.length - shown.length)) }) })));
+      }
+      panel.append(el("p", { class: "note", text: `${t("br_sort")} ${t("tbl_note")}` }));
+    }
+    kids.push(panel);
+    box.replaceChildren(...kids);
+  }
+  $("b-sp").addEventListener("change", (ev) => { B.sp = ev.target.value; B.limit = BSTEP; renderBrowse(); });
+  $("b-unit").addEventListener("change", (ev) => { B.unit = Number(ev.target.value); B.limit = BSTEP; renderBrowse(); });
+  $("b-dir").addEventListener("change", (ev) => { B.dir = ev.target.value; B.limit = BSTEP; renderBrowse(); });
+  for (const c of [1, 2, 3]) $(`b-c${c}`).addEventListener("change", (ev) => { B.cls[c] = ev.target.checked; B.limit = BSTEP; renderBrowse(); });
+  $("b-k").addEventListener("change", (ev) => { B.kmin = Number(ev.target.value); B.limit = BSTEP; renderBrowse(); });
+  $("b-rep").addEventListener("change", (ev) => { B.rep = ev.target.checked; B.limit = BSTEP; renderBrowse(); });
+  $("b-pi").addEventListener("change", (ev) => { B.pi = ev.target.checked; B.limit = BSTEP; renderBrowse(); });
+  $("b-find").addEventListener("input", (ev) => { B.find = ev.target.value; B.limit = BSTEP; renderBrowse(); });
+
   // ---------- views ----------
-  const VIEWS = ["lookup", "map", "checklist", "about"];
+  const VIEWS = ["lookup", "browse", "map", "checklist", "about"];
   function show(v) {
     for (const x of VIEWS) {
       const sec = $(`v-${x}`), tab = $(`t-${x}`), on = x === v;
       sec.hidden = !on; if (on) sec.style.display = "grid";
       tab.setAttribute("aria-selected", on ? "true" : "false");
     }
+    if (v === "browse") renderBrowse();
     try { localStorage.setItem("exgrade-view", v); } catch (e) { /* storage unavailable */ }
   }
   document.querySelectorAll("nav.tabs button").forEach((b) => b.addEventListener("click", () => show(b.dataset.v)));
@@ -1269,6 +1489,7 @@ footer .wrap { padding-block: 16px 28px; display: flex; flex-wrap: wrap; gap: 6p
     applyStatic(); renderCredit(); renderFacts(); renderRibbon(); fillSelects(); renderMap(); renderText(); renderVis();
     if (S.cur) renderResult();
     if (S.mapSel) mapDetail(S.mapSel, false);
+    if (!$("v-browse").hidden) renderBrowse();
   }
   $("lang").addEventListener("change", (ev) => setLang(ev.target.value, true));
 
